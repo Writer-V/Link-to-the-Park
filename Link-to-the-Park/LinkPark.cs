@@ -2,16 +2,16 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Link_to_the_Park;
+namespace LinkToThePark;
 
-public class Game1 : Game
+public class LinkPark : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+    private GraphicsDeviceManager graphics;
+    private SpriteBatch spriteBatch = null!;
 
-    public Game1()
+    public LinkPark()
     {
-        _graphics = new GraphicsDeviceManager(this);
+        graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -25,7 +25,7 @@ public class Game1 : Game
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
+        spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
     }

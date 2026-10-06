@@ -1,2 +1,2 @@
-﻿using var game = new Link_to_the_Park.Game1();
+﻿using var game = new LinkToThePark.LinkPark();
 game.Run();

@@ -8,7 +8,7 @@
         "name": "C#: Link_to_the_Park Debug",
         "type": "dotnet",
         "request": "launch",
-        "projectPath": "${workspaceFolder}/Link_to_the_Park.csproj"
+        "projectPath": "${workspaceFolder}/Link-to-the-Park.csproj"
       }
     ],
   }
