@@ -1,7 +1,6 @@
 bin/
 obj/
-.vscode/
+.vscode/*
 .vs/
 *.user
-!.vscode/launch.json
-!.config/dotnet-tools.json
+!*/.vscode/launch.json
