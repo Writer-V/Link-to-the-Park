@@ -2,6 +2,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using LinkToThePark.World.Tiled;
+using LinkToThePark.Graphics;
+using LinkToThePark.World;
 
 namespace LinkToThePark;
 
@@ -14,6 +17,8 @@ public class LinkPark : Game
     public LinkPark()
     {
         graphics = new GraphicsDeviceManager(this);
+        graphics.PreferredBackBufferWidth = 640;
+        graphics.PreferredBackBufferHeight = 480;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -21,15 +26,13 @@ public class LinkPark : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: Add a texture and sound manager.
+        TextureManager.Initialize(Content);
     }
 
     protected override void Update(GameTime gameTime)
@@ -45,9 +48,8 @@ public class LinkPark : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        // TODO: Add your drawing code here
-
+        spriteBatch.Begin();
+        spriteBatch.End();
         base.Draw(gameTime);
     }
 }

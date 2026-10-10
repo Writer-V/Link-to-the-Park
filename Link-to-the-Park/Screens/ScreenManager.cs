@@ -6,6 +6,7 @@ public class ScreenManager
 {
     private GameState? pendingGameState = null;
     private GameState gameState = GameState.MainMenu;
+    private BaseScreen? currentScreen;
 
     public void RequestGameState(GameState newState)
     {
