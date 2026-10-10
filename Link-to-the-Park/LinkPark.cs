@@ -13,7 +13,7 @@ public class LinkPark : Game
     private GraphicsDeviceManager graphics;
     private SpriteBatch spriteBatch = null!;
     private ScreenManager screenManager = new ScreenManager();
-
+    private Map map = null!;
     public LinkPark()
     {
         graphics = new GraphicsDeviceManager(this);
@@ -33,6 +33,7 @@ public class LinkPark : Game
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
         TextureManager.Initialize(Content);
+        map = new("maps/SE.tmj");
     }
 
     protected override void Update(GameTime gameTime)
@@ -49,6 +50,8 @@ public class LinkPark : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
         spriteBatch.Begin();
+        map.DrawBelow(spriteBatch);
+        map.DrawAbove(spriteBatch);
         spriteBatch.End();
         base.Draw(gameTime);
     }
