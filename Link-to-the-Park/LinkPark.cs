@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LinkToThePark.Screens;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -8,6 +9,7 @@ public class LinkPark : Game
 {
     private GraphicsDeviceManager graphics;
     private SpriteBatch spriteBatch = null!;
+    private ScreenManager screenManager = new ScreenManager();
 
     public LinkPark()
     {
@@ -27,16 +29,16 @@ public class LinkPark : Game
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        // TODO: use this.Content to load your game content here
+        // TODO: Add a texture and sound manager.
     }
 
     protected override void Update(GameTime gameTime)
     {
+
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-
+            Exit(); // Remove when inputs are done.
         // TODO: Add your update logic here
-
+        screenManager.Update(gameTime);
         base.Update(gameTime);
     }
 

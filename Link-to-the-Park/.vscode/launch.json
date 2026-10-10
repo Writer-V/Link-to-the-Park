@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "C#: Link_to_the_Park Debug",
+        "name": "C#: Link to the Park Debug",
         "type": "dotnet",
         "request": "launch",
         "projectPath": "${workspaceFolder}/Link-to-the-Park.csproj"
