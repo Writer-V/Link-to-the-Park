@@ -52,20 +52,24 @@ public static class TiledLoader
                 tileset.TileWidth, 
                 tileset.TileHeight);
             
-            return new Tile(textureName, source, effects);
+            return new Tile(
+                textureName, 
+                source, 
+                effects,
+                HasTrueProperty(GetTileById(tileset, localId), "solid"),
+                HasTrueProperty(GetTileById(tileset, localId), "bridge"));
         }
         else
         {
-            foreach (var tile in tileset.Tiles)
-            {
-                if (tile.Id == localId)
-                {
-                    textureName = "tilesets/objects_separately/" + Path.GetFileNameWithoutExtension(tile.Image);
-                    source = new Rectangle(0, 0, tile.ImageWidth, tile.ImageHeight);
-                    return new Tile(textureName, source, effects);
-                }
-            }
-            throw new InvalidDataException($"Tile with GID {gid} not found in any tileset.");
+            var tile = GetTileById(tileset, localId);
+            textureName = "tilesets/objects_separately/" + Path.GetFileNameWithoutExtension(tile.Image);
+            source = new Rectangle(0, 0, tile.ImageWidth, tile.ImageHeight);
+            return new Tile(
+                textureName, 
+                source, 
+                effects, // TODO: The anchor tile might not be what syhould be solid.
+                HasTrueProperty(tile, "solid"),
+                HasTrueProperty(tile, "bridge"));
         }
     }
     public static Tile?[,] LoadLayer(TiledLayer layer, TiledMap map)
@@ -78,5 +82,24 @@ public static class TiledLoader
             layerTileGrid[i % map.Width, i / map.Width] = CreateTile(layer.Data[i], map);
         }
         return layerTileGrid;
+    }
+    private static TiledTile? GetTileById(TiledTileset tileset, int localId)
+    {
+        foreach (var tile in tileset.Tiles)
+        {
+            if (tile.Id == localId)
+                return tile;
+        }
+        return null;
+    }
+    public static bool HasTrueProperty(TiledTile? tile, string propertyName)
+    {
+        if (tile == null) return false;
+        foreach (var property in tile.Properties)
+        {
+            if (property.Name == propertyName && property.Value == true)
+                return true;
+        }
+        return false;
     }
 }
