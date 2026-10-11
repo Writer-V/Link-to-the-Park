@@ -13,11 +13,8 @@ public class LinkPark : Game
 {
     private GraphicsDeviceManager graphics;
     private SpriteBatch spriteBatch = null!;
-    private Texture2D whitePixel = null!;
-    private ScreenManager screenManager = new ScreenManager();
+    private ScreenManager screenManager;
     private PlayerInputs inputs = new();
-    private Map map = null!;
-    private bool viewDebug = false;
     public LinkPark()
     {
         graphics = new GraphicsDeviceManager(this);
@@ -25,6 +22,7 @@ public class LinkPark : Game
         graphics.PreferredBackBufferHeight = 480;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        screenManager = new(inputs);
     }
 
     protected override void Initialize()
@@ -36,19 +34,14 @@ public class LinkPark : Game
     protected override void LoadContent()
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
-        TextureManager.Initialize(Content);
-        whitePixel = new(GraphicsDevice, 1, 1);
-        whitePixel.SetData([Color.White]);
-        map = new("maps/SE.tmj");
+        TextureManager.Initialize(Content, GraphicsDevice);
     }
 
     protected override void Update(GameTime gameTime)
     {
-        inputs.UpdateState(true);
+        inputs.UpdateState(IsActive);
         if(inputs.IsActionPressed(InputAction.Quit))
             Exit();
-        if(inputs.IsActionPressed(InputAction.Debug))
-            viewDebug = !viewDebug;
         // TODO: Add your update logic here
         screenManager.Update(gameTime);
         base.Update(gameTime);
@@ -58,16 +51,13 @@ public class LinkPark : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
         spriteBatch.Begin();
-        map.DrawBelow(spriteBatch);
-        map.DrawAbove(spriteBatch);
-        if(viewDebug)
-            map.DrawDebug(spriteBatch, whitePixel);
+        screenManager.Draw(spriteBatch);
         spriteBatch.End();
         base.Draw(gameTime);
     }
     protected override void UnloadContent()
     {
-        whitePixel.Dispose();
+        TextureManager.Unload();
         base.UnloadContent();
     }
 }

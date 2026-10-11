@@ -1,30 +1,37 @@
 using System;
+using LinkToThePark.Input;
+using LinkToThePark.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace LinkToThePark.Screens;
 public class PlayingScreen : BaseScreen
 {
+    private Map currentMap = null!;
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
     {
     }
     public override void Enter()
     {
-        throw new System.NotImplementedException();
+        currentMap = new("maps/NE.tmj");
     }
 
     public override void Exit()
     {
-        throw new System.NotImplementedException();
     }
 
-    public override void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
-        throw new System.NotImplementedException();
     }
     
+    public override void Draw(SpriteBatch spriteBatch, bool viewDebug = false)
+    {
+        Draw(spriteBatch);
+        if(viewDebug) currentMap.DrawDebug(spriteBatch);
+    }
     public override void Draw(SpriteBatch spriteBatch)
     {
-        throw new System.NotImplementedException();
+        currentMap.DrawBelow(spriteBatch);
+        currentMap.DrawAbove(spriteBatch);
     }
 }

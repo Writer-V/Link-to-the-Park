@@ -75,9 +75,9 @@ public class PlayerInputs
     {
         Point direction = new();
         if(IsActionHeld(InputAction.MoveUp))
-            direction.Y = -1;
+            direction.Y -= 1;
         if(IsActionHeld(InputAction.MoveDown))
-            direction.Y = 1;
+            direction.Y += 1;
         if(IsActionHeld(InputAction.MoveRight))
             direction.X = 1;
         if (IsActionHeld(InputAction.MoveLeft))

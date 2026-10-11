@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using LinkToThePark.Graphics;
 using LinkToThePark.World.Tiled;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -81,7 +82,7 @@ public class Map
         foreach (var layer in LayersAbove)
             DrawLayer(spriteBatch, layer);
     }
-    public void DrawDebug(SpriteBatch spriteBatch, Texture2D pixel)
+    public void DrawDebug(SpriteBatch spriteBatch)
     {
         for(int x = 0; x < solidMap.GetLength(0); x++)
         {
@@ -89,7 +90,7 @@ public class Map
             {
                 if(solidMap[x,y])
                     spriteBatch.Draw(
-                        pixel, new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize),
+                        TextureManager.Pixel, new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize),
                         Color.Red * 0.4f);
             }
         }

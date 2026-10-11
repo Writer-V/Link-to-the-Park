@@ -1,12 +1,20 @@
 using System;
+using LinkToThePark.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace LinkToThePark.Screens;
 public class ScreenManager
 {
-    private GameState? pendingGameState = null;
+    private GameState? pendingGameState = GameState.MainMenu;
     private GameState gameState = GameState.MainMenu;
+    private PlayerInputs inputs;
+    private bool viewDebug = false;
     private BaseScreen? currentScreen;
+    public ScreenManager(PlayerInputs inputs)
+    {
+        this.inputs = inputs;
+    }
 
     public void RequestGameState(GameState newState)
     {
@@ -17,6 +25,7 @@ public class ScreenManager
     public void ChangeGameState()
     {
         if (pendingGameState == null) return;
+        currentScreen?.Exit();
         gameState = pendingGameState.Value;
         pendingGameState = null;
         switch (gameState)
@@ -33,20 +42,18 @@ public class ScreenManager
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        currentScreen?.Enter();
     }
 
     public void Update(GameTime gameTime)
     {
-        switch (gameState)
-        {
-            case GameState.MainMenu:
-                break;
-            case GameState.Playing:
-                break;
-            case GameState.GameOver:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        ChangeGameState();
+        if(inputs.IsActionPressed(InputAction.Debug))
+            viewDebug = !viewDebug;
+        currentScreen?.Update(gameTime, inputs);
+    }
+    public void Draw(SpriteBatch spriteBatch)
+    {
+        currentScreen?.Draw(spriteBatch, viewDebug);
     }
 }

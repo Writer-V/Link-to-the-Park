@@ -1,4 +1,5 @@
 using System;
+using LinkToThePark.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,6 +13,7 @@ public abstract class BaseScreen
     {
         this.requestGameState = requestGameState;
     }
-    public abstract void Update(GameTime gameTime);
+    public abstract void Update(GameTime gameTime, PlayerInputs input);
     public abstract void Draw(SpriteBatch spriteBatch);
+    public abstract void Draw(SpriteBatch spriteBatch, bool viewDebug = false);
 }
