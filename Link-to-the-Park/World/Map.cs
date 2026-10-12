@@ -14,7 +14,7 @@ public class Map
     public List<Tile?[,]> LayersBelow { get; private set; } = new();
     private bool[,] solidMap = null!;
     public const int TileSize = 32;
-    public bool IsSolid(int x, int y) => solidMap[x,y];
+    public bool IsSolid(Point position) => solidMap[position.X,position.Y];
     public Map(string filepath)
     {
         TiledMap tiledMap = TiledLoader.Load(filepath);
@@ -52,7 +52,14 @@ public class Map
             }
         }
     }
-
+    public bool IsInside(Point tile)
+    {
+        return (
+            tile.X > 0 && 
+            tile.X < solidMap.GetLength(0) - 1 && 
+            tile.Y > 0 &&
+            tile.Y < solidMap.GetLength(1));
+    }
     private void DrawLayer(SpriteBatch spriteBatch, Tile?[,] layer)
     {
         for (int x = 0; x < layer.GetLength(0); x++)

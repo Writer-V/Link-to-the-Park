@@ -25,8 +25,4 @@ public class GameOverScreen : BaseScreen
     {
         Draw(spriteBatch);
     }
-    public override void Draw(SpriteBatch spriteBatch)
-    {
-        
-    }
 }

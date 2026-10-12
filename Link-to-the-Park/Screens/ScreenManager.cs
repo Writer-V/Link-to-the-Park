@@ -22,7 +22,7 @@ public class ScreenManager
         pendingGameState = newState;
     }
 
-    public void ChangeGameState()
+    private void ChangeGameState()
     {
         if (pendingGameState == null) return;
         currentScreen?.Exit();

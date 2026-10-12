@@ -14,6 +14,5 @@ public abstract class BaseScreen
         this.requestGameState = requestGameState;
     }
     public abstract void Update(GameTime gameTime, PlayerInputs input);
-    public abstract void Draw(SpriteBatch spriteBatch);
-    public abstract void Draw(SpriteBatch spriteBatch, bool viewDebug = false);
+    public abstract void Draw(SpriteBatch spriteBatch, bool viewDebug);
 }

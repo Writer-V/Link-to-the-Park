@@ -1,4 +1,5 @@
 using System;
+using LinkToThePark.Graphics;
 using LinkToThePark.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,10 +28,6 @@ public class MainMenuScreen : BaseScreen
     
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)
     {
-        Draw(spriteBatch);
-    }
-    public override void Draw(SpriteBatch spriteBatch)
-    {
-        
+        spriteBatch.Draw(TextureManager.Pixel, new Rectangle(0, 0, 1, 1), Color.White);
     }
 }

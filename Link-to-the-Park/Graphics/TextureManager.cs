@@ -10,7 +10,7 @@ public static class TextureManager
     private static GraphicsDevice? graphics;
     private readonly static Dictionary<string, Texture2D> textures = new();
     
-    public static Texture2D? Pixel { get; private set; }
+    public static Texture2D Pixel { get; private set; } = null!;
     public static void Initialize(ContentManager contentManager, GraphicsDevice graphicsDevice)
     {
         content = contentManager;
