@@ -61,14 +61,15 @@ public class PlayingScreen : BaseScreen
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
         //One Direction. Not a band, but a lack of diagonals.
-        if(inputs.IsActionPressed(InputAction.MoveUp))
+        if(inputs.IsActionHeld(InputAction.MoveUp))
             player.TryMove(new Point(0,-1), currentMap);
-        else if(inputs.IsActionPressed(InputAction.MoveDown))
+        else if(inputs.IsActionHeld(InputAction.MoveDown))
             player.TryMove(new Point(0,1), currentMap);
-        else if(inputs.IsActionPressed(InputAction.MoveLeft))
+        else if(inputs.IsActionHeld(InputAction.MoveLeft))
             player.TryMove(new Point(-1,0), currentMap);
-        else if(inputs.IsActionPressed(InputAction.MoveRight))
+        else if(inputs.IsActionHeld(InputAction.MoveRight))
             player.TryMove(new Point(1, 0), currentMap);
+        player.Update(gameTime);
     }
     
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)
