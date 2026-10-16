@@ -12,6 +12,7 @@ public class Map
 {
     public List<Tile?[,]> LayersAbove { get; private set; } = new();
     public List<Tile?[,]> LayersBelow { get; private set; } = new();
+    public List<Treasure> Treasures {get;} = new();
     private bool[,] solidMap = null!;
     public const int TileSize = 32;
     public int Width => solidMap.GetLength(0);
@@ -28,6 +29,20 @@ public class Map
             if (tiledMap.Layers[i].Type == "objectgroup")
             {
                 passedPlayerLayer = true;
+                if(tiledMap.Layers[i].Objects != null)
+                {
+                    foreach (TiledObject tiledObject in tiledMap.Layers[i].Objects!)
+                    {
+                        if(tiledObject.Type == "Treasure")
+                        {
+                            Treasures.Add(new(
+                                Enum.Parse<TreasureType>(
+                                    tiledObject.GetProperty("Type")?.GetString() ?? "Chest"),
+                                new((int)(tiledObject.X / TileSize), (int)(tiledObject.Y / TileSize)),
+                                tiledObject.GetProperty("PointValue")?.GetInt32() ?? 0));
+                        }
+                    }
+                }
                 continue;
             }
 

@@ -98,7 +98,7 @@ public static class TiledLoader
         if (tile == null) return false;
         foreach (var property in tile.Properties)
         {
-            if (property.Name == propertyName && property.Value == true)
+            if (property.Name == propertyName && property.Value.ValueKind == JsonValueKind.True)
                 return true;
         }
         return false;
