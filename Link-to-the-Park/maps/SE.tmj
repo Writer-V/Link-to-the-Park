@@ -29,13 +29,13 @@
          "y":0
         }, 
         {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 619, 620, 471, 471, 471, 471, 471, 471, 471,
-            619, 647, 647, 647, 647, 647, 647, 647, 647, 647, 647, 620, 471, 471, 471, 471, 471, 471, 530, 531,
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 619, 620, 471, 471, 471, 471, 471, 471,
+            619, 647, 647, 647, 647, 647, 647, 647, 647, 647, 647, 647, 648, 471, 471, 471, 471, 471, 530, 531,
             620, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 530, 559, 0,
             471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 471, 530, 559, 0, 0,
             471, 471, 471, 471, 471, 471, 471, 471, 471, 530, 531, 531, 531, 531, 531, 531, 559, 0, 0, 0,
-            530, 531, 531, 531, 531, 562, 471, 471, 471, 587, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            559, 0, 0, 0, 0, 591, 471, 471, 530, 559, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            471, 530, 531, 531, 531, 562, 471, 471, 471, 587, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            531, 559, 0, 0, 0, 591, 471, 471, 530, 559, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 591, 471, 471, 587, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 591, 471, 471, 587, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 619, 648, 471, 558, 559, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -86,8 +86,8 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1856, 0, 1923,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1848, 1850, 1941, 0, 1990, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1849, 0, 0, 0, 0, 1917, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1856, 0, 0, 0, 0, 0, 1910,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1850, 1917, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1848, 1910,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1849, 1917,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1891, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1849,
@@ -136,7 +136,218 @@
          "draworder":"topdown",
          "id":9,
          "name":"PlayerMoveLayer",
-         "objects":[],
+         "objects":[
+                {
+                 "height":32,
+                 "id":180,
+                 "name":"SkeletonGuard1",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Enemies",
+                         "type":"list",
+                         "value":[
+                                {
+                                 "propertytype":"EnemyInteraction",
+                                 "type":"class",
+                                 "value":
+                                    {
+                                     "EnemyId":0,
+                                     "Order":0,
+                                     "Type":"Skeleton"
+                                    }
+                                }]
+                        }],
+                 "rotation":0,
+                 "type":"EnemyLocation",
+                 "visible":true,
+                 "width":32,
+                 "x":352,
+                 "y":160
+                }, 
+                {
+                 "height":32,
+                 "id":187,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Enemies",
+                         "type":"list",
+                         "value":[
+                                {
+                                 "propertytype":"EnemyInteraction",
+                                 "type":"class",
+                                 "value":
+                                    {
+                                     "EnemyId":0,
+                                     "Order":1,
+                                     "Type":"Skeleton"
+                                    }
+                                }]
+                        }],
+                 "rotation":0,
+                 "type":"EnemyLocation",
+                 "visible":true,
+                 "width":32,
+                 "x":352,
+                 "y":352
+                }, 
+                {
+                 "height":32,
+                 "id":188,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Enemies",
+                         "type":"list",
+                         "value":[
+                                {
+                                 "propertytype":"EnemyInteraction",
+                                 "type":"class",
+                                 "value":
+                                    {
+                                     "EnemyId":0,
+                                     "Order":2,
+                                     "Type":"Skeleton"
+                                    }
+                                }]
+                        }],
+                 "rotation":0,
+                 "type":"EnemyLocation",
+                 "visible":true,
+                 "width":32,
+                 "x":256,
+                 "y":352
+                }, 
+                {
+                 "height":32,
+                 "id":189,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Enemies",
+                         "type":"list",
+                         "value":[
+                                {
+                                 "propertytype":"EnemyInteraction",
+                                 "type":"class",
+                                 "value":
+                                    {
+                                     "EnemyId":0,
+                                     "Order":3,
+                                     "Type":"Skeleton"
+                                    }
+                                }]
+                        }],
+                 "rotation":0,
+                 "type":"EnemyLocation",
+                 "visible":true,
+                 "width":32,
+                 "x":256,
+                 "y":288
+                }, 
+                {
+                 "height":32,
+                 "id":190,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Enemies",
+                         "type":"list",
+                         "value":[
+                                {
+                                 "propertytype":"EnemyInteraction",
+                                 "type":"class",
+                                 "value":
+                                    {
+                                     "EnemyId":0,
+                                     "Order":4,
+                                     "Type":"Skeleton"
+                                    }
+                                }]
+                        }],
+                 "rotation":0,
+                 "type":"EnemyLocation",
+                 "visible":true,
+                 "width":32,
+                 "x":320,
+                 "y":288
+                }, 
+                {
+                 "height":32,
+                 "id":191,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Enemies",
+                         "type":"list",
+                         "value":[
+                                {
+                                 "propertytype":"EnemyInteraction",
+                                 "type":"class",
+                                 "value":
+                                    {
+                                     "EnemyId":0,
+                                     "Order":5,
+                                     "Type":"Skeleton"
+                                    }
+                                }]
+                        }],
+                 "rotation":0,
+                 "type":"EnemyLocation",
+                 "visible":true,
+                 "width":32,
+                 "x":320,
+                 "y":160
+                }, 
+                {
+                 "height":32,
+                 "id":192,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"PointValue",
+                         "type":"int",
+                         "value":30
+                        }, 
+                        {
+                         "name":"Type",
+                         "propertytype":"TreasureType",
+                         "type":"string",
+                         "value":"Chest"
+                        }],
+                 "rotation":0,
+                 "type":"Treasure",
+                 "visible":true,
+                 "width":32,
+                 "x":448,
+                 "y":160
+                }, 
+                {
+                 "height":32,
+                 "id":193,
+                 "name":"KeyForOffering",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Type",
+                         "propertytype":"TreasureType",
+                         "type":"string",
+                         "value":"Item_Key"
+                        }],
+                 "rotation":0,
+                 "type":"Treasure",
+                 "visible":true,
+                 "width":32,
+                 "x":512,
+                 "y":256
+                }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -222,7 +433,7 @@
          "y":0
         }],
  "nextlayerid":15,
- "nextobjectid":180,
+ "nextobjectid":197,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

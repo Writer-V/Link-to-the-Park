@@ -10,30 +10,35 @@ public class Player
     public Point Position {get; private set;}
     private Vector2 drawPosition;
     public bool IsMoving {get; private set;}
-    private const float speed = 160f; //Needs scale multiplier
-    private Point Facing { get; private set;}
+    private const float speed = 128f;
+    private Point facing;
     private Texture2D texture; //Really needs an animator class...
-    public Point FacingTile => Position + Facing;
+    public Point FacingTile => Position + facing;
     public Player(Point pos)
     {
         Position = pos;
         drawPosition = Position.ToVector2() * Map.TileSize;
         texture = TextureManager.Get("characters/PlayerCharacter1");
     }
-    public bool TryMove(Point direction, Map map)
+    public MoveResult Move(Point direction, Map map)
     {
-        if(IsMoving) return false;
-        Facing = direction;
+        if(IsMoving) return MoveResult.Blocked;
+        facing = direction;
         Point target = Position + direction;
         System.Diagnostics.Debug.WriteLine($"Attempted direction {direction.X},{direction.Y}, to {target.X},{target.Y} from {Position.X},{Position.Y}");
         if(!map.IsInside(target))
-            // Do the map shifting, but for now...
-            return false;
+            return MoveResult.MapExit;
         if(map.IsSolid(target))
-            return false;
+            return MoveResult.Blocked;
         Position = target;
         IsMoving = true;
-        return true;
+        return MoveResult.Walkable;
+    }
+    public void PlaceAt(Point position)
+    {
+        Position = position;
+        drawPosition = position.ToVector2() * Map.TileSize;
+        IsMoving = false;
     }
     public void Update(GameTime gameTime)
     {
@@ -47,7 +52,7 @@ public class Player
         }
         else
         {
-            drawPosition += Vector2.Normalize(target - drawPosition);
+            drawPosition += Vector2.Normalize(target - drawPosition) * step;
         }
     }
     public void Draw(SpriteBatch spriteBatch)

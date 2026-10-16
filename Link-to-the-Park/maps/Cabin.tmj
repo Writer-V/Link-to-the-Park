@@ -137,7 +137,110 @@
          "draworder":"topdown",
          "id":12,
          "name":"PlayerMoveLayer",
-         "objects":[],
+         "objects":[
+                {
+                 "height":32,
+                 "id":57,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"PointValue",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
+                         "name":"Type",
+                         "propertytype":"TreasureType",
+                         "type":"string",
+                         "value":"Chest"
+                        }],
+                 "rotation":0,
+                 "type":"Treasure",
+                 "visible":true,
+                 "width":32,
+                 "x":128,
+                 "y":192
+                }, 
+                {
+                 "height":32,
+                 "id":58,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"ID",
+                         "type":"int",
+                         "value":2
+                        }],
+                 "rotation":0,
+                 "type":"NpcSpawn",
+                 "visible":true,
+                 "width":32,
+                 "x":288,
+                 "y":256
+                }, 
+                {
+                 "height":32,
+                 "id":61,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"PointValue",
+                         "type":"int",
+                         "value":10
+                        }, 
+                        {
+                         "name":"Type",
+                         "propertytype":"TreasureType",
+                         "type":"string",
+                         "value":"Chest"
+                        }],
+                 "rotation":0,
+                 "type":"Treasure",
+                 "visible":true,
+                 "width":32,
+                 "x":384,
+                 "y":320
+                }, 
+                {
+                 "height":32,
+                 "id":62,
+                 "name":"Offering",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"Type",
+                         "propertytype":"TreasureType",
+                         "type":"string",
+                         "value":"Item_Offering"
+                        }],
+                 "rotation":0,
+                 "type":"Treasure",
+                 "visible":true,
+                 "width":32,
+                 "x":192,
+                 "y":224
+                }, 
+                {
+                 "height":32,
+                 "id":66,
+                 "name":"ExitTile",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"ExitMap",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":256,
+                 "y":448
+                }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -249,7 +352,7 @@
          "y":0
         }],
  "nextlayerid":15,
- "nextobjectid":57,
+ "nextobjectid":67,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

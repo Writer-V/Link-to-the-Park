@@ -43,32 +43,49 @@ public class PlayingScreen : BaseScreen
     }
     private bool TryChangeArea(Point direction)
     {
-        // TODO: Handle character reaching edges.
         Point target = currentArea + direction;
+        bool canChange;
         if(
             target.X < 0 || 
             target.X > (worldMap.GetLength(0) - 1) || 
             target.Y < 0 ||
             target.Y > (worldMap.GetLength(1) - 1))
-            return false;
-        if(worldMap[target.X,target.Y] == null) 
-            return false;
-        SetCurrentMap(target);
-        currentArea = target;
-        return true;
+            canChange = false;
+        else if(worldMap[target.X,target.Y] == null) 
+            canChange = false;
+        else
+        {
+            canChange = true;
+            SetCurrentMap(target);
+            currentArea = target;
+        }
+        return canChange;
     }
 
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
         //One Direction. Not a band, but a lack of diagonals.
+        Point direction = new();
         if(inputs.IsActionHeld(InputAction.MoveUp))
-            player.TryMove(new Point(0,-1), currentMap);
+            direction = new Point(0,-1);
         else if(inputs.IsActionHeld(InputAction.MoveDown))
-            player.TryMove(new Point(0,1), currentMap);
+            direction = new Point(0,1);
         else if(inputs.IsActionHeld(InputAction.MoveLeft))
-            player.TryMove(new Point(-1,0), currentMap);
+            direction = new Point(-1,0);
         else if(inputs.IsActionHeld(InputAction.MoveRight))
-            player.TryMove(new Point(1, 0), currentMap);
+            direction = new Point(1,0);
+        if(direction != Point.Zero)
+        {
+            MoveResult result = player.Move(direction, currentMap);
+            if(result == MoveResult.MapExit && TryChangeArea(direction))
+            {
+                Point p = player.Position + direction;
+                // C# uses % weird. -1 % 20 = -1, not 19.
+                p.X = (p.X + currentMap.Width) % currentMap.Width;
+                p.Y = (p.Y + currentMap.Height) % currentMap.Height;
+                player.PlaceAt(p);
+            }
+        }
         player.Update(gameTime);
     }
     
