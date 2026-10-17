@@ -37,7 +37,7 @@ public abstract class Actor
         drawPosition = position.ToVector2() * Map.TileSize;
         IsMoving = false;
     }
-    public void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime)
     {
         if(!IsMoving) return;
         Vector2 target = Position.ToVector2() * Map.TileSize;

@@ -93,6 +93,11 @@ public class PlayingScreen : BaseScreen
 
         foreach (var enemy in enemies)
             enemy.Update(gameTime, currentMap);
+        foreach(var enemy in enemies)
+            if(enemy.Position == player.Position)
+                player.TakeHit();
+        if(player.CurrentLives <= 0)
+            requestGameState(GameState.GameOver);
     }
     
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)

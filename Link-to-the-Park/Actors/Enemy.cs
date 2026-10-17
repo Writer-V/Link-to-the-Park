@@ -12,7 +12,7 @@ public class Enemy : Actor
     {
         EnemyType.Skeleton => (1, 128f, 3),
         EnemyType.Zombie => (2, 48f, 2),
-        EnemyType.Ghost => (1, 64f, 1),
+        EnemyType.Ghost => (1, 92f, 1),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
     public EnemyType Type {get;}
