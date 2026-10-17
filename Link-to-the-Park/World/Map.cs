@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using LinkToThePark.Graphics;
 using LinkToThePark.World.Tiled;
 using Microsoft.Xna.Framework;
@@ -13,6 +14,7 @@ public class Map
     public List<Tile?[,]> LayersAbove { get; private set; } = new();
     public List<Tile?[,]> LayersBelow { get; private set; } = new();
     public List<Treasure> Treasures {get;} = new();
+    public List<Patrol> Patrols {get;} = new();
     private bool[,] solidMap = null!;
     public const int TileSize = 32;
     public int Width => solidMap.GetLength(0);
@@ -22,6 +24,7 @@ public class Map
     {
         TiledMap tiledMap = TiledLoader.Load(filepath);
         bool passedPlayerLayer = false;
+        Dictionary<int, List<(int Order, Point Tile, EnemyType Type)>> waypointsById = new();
         solidMap = new bool[tiledMap.Width, tiledMap.Height];
 
         for (int i = 0; i < tiledMap.Layers.Count; i++)
@@ -41,6 +44,24 @@ public class Map
                                 new((int)(tiledObject.X / TileSize), (int)(tiledObject.Y / TileSize)),
                                 tiledObject.GetProperty("PointValue")?.GetInt32() ?? 0));
                         }
+                        else if (tiledObject.Type == "EnemyLocation")
+                        {
+                            Point tile = new((int)(tiledObject.X / TileSize), (int)(tiledObject.Y / TileSize));
+                            foreach (JsonElement entry in tiledObject.GetProperty("Enemies")!.Value.EnumerateArray())
+                            {
+                                JsonElement fields = entry.GetProperty("value");
+                                int id = fields.TryGetProperty("EnemyId", out JsonElement idElement) 
+                                    ? idElement.GetInt32() : 0;
+                                int order = fields.TryGetProperty("Order", out JsonElement orderElement) 
+                                    ? orderElement.GetInt32() : 0;
+                                EnemyType type = fields.TryGetProperty("Type", out JsonElement typeElement) 
+                                    ? Enum.Parse<EnemyType>(typeElement.ToString()) : EnemyType.Skeleton;
+                                if(waypointsById.ContainsKey(id))
+                                    waypointsById[id].Add((order, tile, type));
+                                else 
+                                    waypointsById.Add(id, new List<(int Order, Point Tile, EnemyType Type)> {(order, tile, type)});
+                            }
+                        }
                     }
                 }
                 continue;
@@ -51,6 +72,16 @@ public class Map
             else
                 LayersBelow.Add(TiledLoader.LoadLayer(tiledMap.Layers[i], tiledMap));
         }
+        // Create patrols from the temp dictinary
+        foreach(var iD in waypointsById)
+        {
+            iD.Value.Sort((a, b) => a.Order.CompareTo(b.Order));
+            Patrols.Add(new(iD.Key, iD.Value[0].Type, 
+                new(iD.Value.Select(wp => wp.Tile))));
+            Debug.WriteLine($"{iD.Key.ToString()} {iD.Value[0].Type.ToString()}: " 
+            + string.Join(", ", iD.Value.Select(wp => wp.Tile).Select(pos => $"({pos.X},{pos.Y})")));
+        }
+
         // Build the blocking solid areas.
         for (int x = 0; x < tiledMap.Width; x++)
         {
