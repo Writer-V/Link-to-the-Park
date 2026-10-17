@@ -73,13 +73,13 @@ public class Map
                 LayersBelow.Add(TiledLoader.LoadLayer(tiledMap.Layers[i], tiledMap));
         }
         // Create patrols from the temp dictinary
-        foreach(var iD in waypointsById)
+        foreach(var patrolEntry in waypointsById)
         {
-            iD.Value.Sort((a, b) => a.Order.CompareTo(b.Order));
-            Patrols.Add(new(iD.Key, iD.Value[0].Type, 
-                new(iD.Value.Select(wp => wp.Tile))));
-            Debug.WriteLine($"{iD.Key.ToString()} {iD.Value[0].Type.ToString()}: " 
-            + string.Join(", ", iD.Value.Select(wp => wp.Tile).Select(pos => $"({pos.X},{pos.Y})")));
+            patrolEntry.Value.Sort((a, b) => a.Order.CompareTo(b.Order));
+            Patrols.Add(new(
+                patrolEntry.Key, 
+                patrolEntry.Value[0].Type, 
+                patrolEntry.Value.Select(wp => wp.Tile).ToList()));
         }
 
         // Build the blocking solid areas.

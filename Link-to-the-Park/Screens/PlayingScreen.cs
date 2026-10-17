@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LinkToThePark.Actors;
 using LinkToThePark.Input;
 using LinkToThePark.World;
@@ -15,6 +16,7 @@ public class PlayingScreen : BaseScreen
     private readonly Dictionary<string, Map> maps = new();
     private Map currentMap = null!;
     private Player player = null!;
+    private List<Enemy> enemies = new();
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
     {
     }
@@ -40,6 +42,7 @@ public class PlayingScreen : BaseScreen
             maps.Add(areaName, returnMap);
             currentMap = returnMap;
         }
+        enemies = currentMap.Patrols.Select(p => new Enemy(p)).ToList();
     }
     private bool TryChangeArea(Point direction)
     {
@@ -87,11 +90,16 @@ public class PlayingScreen : BaseScreen
             }
         }
         player.Update(gameTime);
+
+        foreach (var enemy in enemies)
+            enemy.Update(gameTime, currentMap);
     }
     
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)
     {
         currentMap.DrawBelow(spriteBatch);
+        foreach (var enemy in enemies)
+            enemy.Draw(spriteBatch);
         player.Draw(spriteBatch);
         currentMap.DrawAbove(spriteBatch);
         if(viewDebug) currentMap.DrawDebug(spriteBatch);

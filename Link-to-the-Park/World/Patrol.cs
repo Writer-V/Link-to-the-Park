@@ -6,11 +6,11 @@ public class Patrol
 {
     public int Id {get;}
     public EnemyType Type {get;}
-    public List<Point> Waypoints {get;} = new();
+    public List<Point> Waypoints {get;}
     public Patrol(int id, EnemyType type, List<Point> waypoints)
     {
         Id = id;
         Type = type;
         Waypoints = waypoints;
-    }    
+    }
 }
