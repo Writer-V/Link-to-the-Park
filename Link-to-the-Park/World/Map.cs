@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using LinkToThePark.Graphics;
@@ -19,7 +18,11 @@ public class Map
     public const int TileSize = 32;
     public int Width => solidMap.GetLength(0);
     public int Height => solidMap.GetLength(1);
-    public bool IsSolid(Point position) => solidMap[position.X,position.Y];
+    private Texture2D chestTexture;
+    private Texture2D vaseTexture;
+    public bool IsSolid(Point position) => 
+        solidMap[position.X,position.Y] ||
+        Treasures.Any(t => t.Tile == position && t.BlocksMovement);
     public Map(string filepath)
     {
         TiledMap tiledMap = TiledLoader.Load(filepath);
@@ -99,6 +102,10 @@ public class Map
                 solidMap[x, y] = anySolid && !anyBridge;
             }
         }
+
+        // Load treasure texturse
+        chestTexture = TextureManager.Get("items/Chest");
+        vaseTexture = TextureManager.Get("items/BreakablePots");
     }
     public bool IsInside(Point tile)
     {
@@ -148,6 +155,22 @@ public class Map
                         TextureManager.Pixel, new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize),
                         Color.Red * 0.4f);
             }
+        }
+    }
+    public void DrawTreasures(SpriteBatch spriteBatch)
+    {
+        foreach (var treasure in Treasures)
+        {
+            (Texture2D? texture, int sourceX) = treasure.Type switch
+            {
+                TreasureType.Chest         => (chestTexture, treasure.Opened ? 64 : 0),
+                TreasureType.BreakableVase => (vaseTexture,  treasure.Opened ? 96 : 0),
+                _ => (null, 0)
+            };
+            if (texture == null) continue; // TODO: Other stuff
+            spriteBatch.Draw(texture,
+                new Rectangle(treasure.Tile * new Point(TileSize), new Point(TileSize)),
+                new Rectangle(sourceX, 0, TileSize, TileSize), Color.White);
         }
     }
 }

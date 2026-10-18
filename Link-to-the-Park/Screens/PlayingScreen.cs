@@ -107,6 +107,18 @@ public class PlayingScreen : BaseScreen
                     Debug.WriteLine($"Score: {score} (added {enemy.PointValue})");
                 }
             }
+            foreach(var treasure in currentMap.Treasures)
+            {
+                if(treasure.Tile == player.FacingTile && 
+                    !treasure.Opened &&
+                    treasure.Type is TreasureType.Chest or 
+                    TreasureType.BreakableVase)
+                {
+                    treasure.Open();
+                    score += treasure.Points;
+                    Debug.WriteLine($"Score: {score} (added {treasure.Points}) — Solidity is {treasure.BlocksMovement}");
+                }
+            }
             enemies.RemoveAll(e => e.IsDead);
         }
 
@@ -122,6 +134,7 @@ public class PlayingScreen : BaseScreen
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)
     {
         currentMap.DrawBelow(spriteBatch);
+        currentMap.DrawTreasures(spriteBatch);
         foreach (var enemy in enemies)
             enemy.Draw(spriteBatch);
         player.Draw(spriteBatch);
