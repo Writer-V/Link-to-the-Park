@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using LinkToThePark.Graphics;
+using LinkToThePark.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -10,11 +11,19 @@ public class Player : Actor
     public const int MaxLives = 3; // Might change.
     private float invulnerableTimer = 0;
     private bool IsInvulnerable => invulnerableTimer > 0;
-    private const float invulnerableBase = 1.5f; // reset to...
+    private const float invulnerableBase = 1.5f; // set to...
+    private float attackTimer = 0;
+    public bool IsAttacking => attackTimer >= 0;
+    private const float attackTimerBase = 0.15f; // set to..
     public Point FacingTile => Position + facing;
     public Player(Point position) : base(position, 128f)
     {
         texture = TextureManager.Get("characters/PlayerCharacter1");
+        facing = new(0,1);
+    }
+    public void Attack()
+    {
+        attackTimer = attackTimerBase;
     }
     public void TakeHit(int damage = 1) // Prepared for something dealing more damage
     {
@@ -25,7 +34,10 @@ public class Player : Actor
     }
     public override void Update(GameTime gameTime)
     {
-        invulnerableTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if(IsInvulnerable)
+            invulnerableTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if(IsAttacking)
+            attackTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
         base.Update(gameTime);
     }
     public void Draw(SpriteBatch spriteBatch)
@@ -41,5 +53,12 @@ public class Player : Actor
             new Rectangle(0, 0, 128, 128), color, 0f,
             new Vector2(64, 95), // origin: Feet
             1f, SpriteEffects.None, 0f);
+        if(IsAttacking)
+            spriteBatch.Draw(
+                TextureManager.Pixel, 
+                new Rectangle(
+                    FacingTile * Map.TileSize, 
+                    new Point(Map.TileSize,Map.TileSize)),
+                Color.Yellow * 0.7f);
     }
 }

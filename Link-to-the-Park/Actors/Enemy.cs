@@ -20,6 +20,7 @@ public class Enemy : Actor
     public int PointValue {get;} // Variable point values are out of scope
     private readonly List<Point> waypoints;
     private int nextWaypoint;
+    public bool IsDead => HitPoints <= 0;
     public Enemy(Patrol patrol) : base(patrol.Waypoints[0], StatsFor(patrol.Type).Speed)
     {
         Type = patrol.Type;
@@ -41,6 +42,10 @@ public class Enemy : Actor
                     Math.Sign(target.Y - Position.Y)), map);
         }
         base.Update(gameTime);
+    }
+    public void TakeHit(int damage = 1)
+    {
+        HitPoints -= damage;
     }
     public void Draw(SpriteBatch spriteBatch)
     {

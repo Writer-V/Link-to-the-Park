@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LinkToThePark.Actors;
 using LinkToThePark.Input;
@@ -17,6 +18,7 @@ public class PlayingScreen : BaseScreen
     private Map currentMap = null!;
     private Player player = null!;
     private List<Enemy> enemies = new();
+    private int score = 0;
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
     {
     }
@@ -90,6 +92,23 @@ public class PlayingScreen : BaseScreen
             }
         }
         player.Update(gameTime);
+
+        if(inputs.IsActionPressed(InputAction.Attack) &&
+            !player.IsMoving &&
+            !player.IsAttacking)
+        {
+            player.Attack();
+            foreach(var enemy in enemies)
+            {
+                if(enemy.Position == player.FacingTile)
+                {
+                    enemy.TakeHit();
+                    if(enemy.IsDead) score += enemy.PointValue;
+                    Debug.WriteLine($"Score: {score} (added {enemy.PointValue})");
+                }
+            }
+            enemies.RemoveAll(e => e.IsDead);
+        }
 
         foreach (var enemy in enemies)
             enemy.Update(gameTime, currentMap);

@@ -221,56 +221,56 @@
 
 #begin SoundEffects/char1Hurt.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/char1Hurt.mp3
 
 #begin SoundEffects/char2Hurt.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/char2Hurt.mp3
 
 #begin SoundEffects/chestOpen.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/chestOpen.mp3
 
 #begin SoundEffects/ghostAttack.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/ghostAttack.mp3
 
 #begin SoundEffects/ghostDeath.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/ghostDeath.mp3
 
 #begin SoundEffects/hitSolid.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/hitSolid.mp3
 
 #begin SoundEffects/playerDeath.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/playerDeath.mp3
 
 #begin SoundEffects/playerHitTarget.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/playerHitTarget.mp3
@@ -284,42 +284,42 @@
 
 #begin SoundEffects/skeletonDeath.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/skeletonDeath.mp3
 
 #begin SoundEffects/skeletonDetection.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/skeletonDetection.mp3
 
 #begin SoundEffects/zombieAttack.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/zombieAttack.mp3
 
 #begin SoundEffects/zombieDeath.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/zombieDeath.mp3
 
 #begin SoundEffects/zombieDetection.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/zombieDetection.mp3
 
 #begin SoundEffects/zombieHurt.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/zombieHurt.mp3
