@@ -118,6 +118,15 @@ public class PlayingScreen : BaseScreen
                     score += treasure.Points;
                     Debug.WriteLine($"Score: {score} (added {treasure.Points}) — Solidity is {treasure.BlocksMovement}");
                 }
+                else if(treasure.Tile == player.Position &&
+                    !player.IsMoving && !treasure.Opened &&
+                    treasure.Type is TreasureType.Item_Key
+                    or TreasureType.Item_Offering)
+                {
+                    player.PickUp(treasure.Type);
+                    treasure.Open();
+                    Debug.WriteLine($"Picked up {treasure.Type}");
+                }
             }
             enemies.RemoveAll(e => e.IsDead);
         }
@@ -136,7 +145,7 @@ public class PlayingScreen : BaseScreen
         currentMap.DrawBelow(spriteBatch);
         currentMap.DrawTreasures(spriteBatch);
         foreach (var enemy in enemies)
-            enemy.Draw(spriteBatch);
+            enemy.Draw(spriteBatch, player.DrawPosition);
         player.Draw(spriteBatch);
         currentMap.DrawAbove(spriteBatch);
         if(viewDebug) currentMap.DrawDebug(spriteBatch);

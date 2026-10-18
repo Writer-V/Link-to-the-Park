@@ -9,6 +9,8 @@ public class Player : Actor
 {
     public int CurrentLives {get; private set;} = 3;
     public const int MaxLives = 3; // Might change.
+    public bool HasOffering {get; private set;}
+    public bool HasKey {get; private set;}
     private float invulnerableTimer = 0;
     private bool IsInvulnerable => invulnerableTimer > 0;
     private const float invulnerableBase = 1.5f; // set to...
@@ -32,6 +34,18 @@ public class Player : Actor
         invulnerableTimer = invulnerableBase;
         Debug.WriteLine($"Lives: {CurrentLives} / {MaxLives}");
     }
+    public void PickUp(TreasureType item)
+    {
+        switch (item)
+        {
+            case TreasureType.Item_Offering:
+                HasOffering = true;
+                break;
+            case TreasureType.Item_Key:
+                HasKey = true;
+                break;
+        }
+    }
     public override void Update(GameTime gameTime)
     {
         if(IsInvulnerable)
@@ -49,7 +63,7 @@ public class Player : Actor
         // TODO: Replace with proper anim and soure selection.
         spriteBatch.Draw(
             texture,
-            drawPosition + new Vector2(16, 31),
+            DrawPosition + new Vector2(16, 31),
             new Rectangle(0, 0, 128, 128), color, 0f,
             new Vector2(64, 95), // origin: Feet
             1f, SpriteEffects.None, 0f);

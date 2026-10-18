@@ -6,7 +6,7 @@ namespace LinkToThePark.Actors;
 public abstract class Actor
 {
     public Point Position {get; protected set;}
-    protected Vector2 drawPosition;
+    public Vector2 DrawPosition {get; private set;}
     protected Point facing;
     public bool IsMoving {get; protected set;}
     protected float speed;
@@ -15,7 +15,7 @@ public abstract class Actor
     public Actor(Point position, float speed)
     {
         Position = position;
-        drawPosition = Position.ToVector2() * Map.TileSize;
+        DrawPosition = Position.ToVector2() * Map.TileSize;
         this.speed = speed;
     }
     public MoveResult Move(Point direction, Map map)
@@ -34,7 +34,7 @@ public abstract class Actor
     public void PlaceAt(Point position)
     {
         Position = position;
-        drawPosition = position.ToVector2() * Map.TileSize;
+        DrawPosition = position.ToVector2() * Map.TileSize;
         IsMoving = false;
     }
     public virtual void Update(GameTime gameTime)
@@ -42,14 +42,14 @@ public abstract class Actor
         if(!IsMoving) return;
         Vector2 target = Position.ToVector2() * Map.TileSize;
         float step = speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-        if(Vector2.Distance(drawPosition, target) <= step)
+        if(Vector2.Distance(DrawPosition, target) <= step)
         { //Snap in place if close enough
-            drawPosition = target;
+            DrawPosition = target;
             IsMoving = false;
         }
         else
         {
-            drawPosition += Vector2.Normalize(target - drawPosition) * step;
+            DrawPosition += Vector2.Normalize(target - DrawPosition) * step;
         }
     }
     // TODO: Move general Actor Draw here once it can call an animator.

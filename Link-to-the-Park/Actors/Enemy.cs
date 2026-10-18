@@ -47,7 +47,7 @@ public class Enemy : Actor
     {
         HitPoints -= damage;
     }
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, Vector2 playerPosition)
     {
         Color color = Type switch
         {
@@ -55,10 +55,17 @@ public class Enemy : Actor
             EnemyType.Zombie => Color.Green,
             _ => Color.White
         };
+        float opacity = 1f;
+        if (Type == EnemyType.Ghost)
+        {
+            float distance = Vector2.Distance(DrawPosition, playerPosition);
+            if (distance <= 2 * Map.TileSize) opacity = 0f;
+            else if (distance <= 3 * Map.TileSize) opacity = 0.5f;
+        }
         spriteBatch.Draw(TextureManager.Pixel, 
             new Rectangle(
-                (int)drawPosition.X, (int)drawPosition.Y, 
+                (int)DrawPosition.X, (int)DrawPosition.Y, 
                 Map.TileSize, Map.TileSize),
-            color);
+            color * opacity);
     }
 }

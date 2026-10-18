@@ -20,6 +20,8 @@ public class Map
     public int Height => solidMap.GetLength(1);
     private Texture2D chestTexture;
     private Texture2D vaseTexture;
+    private Texture2D offeringTexture;
+    private Texture2D keyTexture;
     public bool IsSolid(Point position) => 
         solidMap[position.X,position.Y] ||
         Treasures.Any(t => t.Tile == position && t.BlocksMovement);
@@ -106,6 +108,8 @@ public class Map
         // Load treasure texturse
         chestTexture = TextureManager.Get("items/Chest");
         vaseTexture = TextureManager.Get("items/BreakablePots");
+        offeringTexture = TextureManager.Get("items/Offering");
+        keyTexture = TextureManager.Get("items/FinalKey");
     }
     public bool IsInside(Point tile)
     {
@@ -161,10 +165,16 @@ public class Map
     {
         foreach (var treasure in Treasures)
         {
+            if(treasure.Opened && 
+                treasure.Type is TreasureType.Item_Key or 
+                TreasureType.Item_Offering)
+                    continue;
             (Texture2D? texture, int sourceX) = treasure.Type switch
             {
                 TreasureType.Chest         => (chestTexture, treasure.Opened ? 64 : 0),
                 TreasureType.BreakableVase => (vaseTexture,  treasure.Opened ? 96 : 0),
+                TreasureType.Item_Offering => (offeringTexture, 0),
+                TreasureType.Item_Key      => (keyTexture, 9),
                 _ => (null, 0)
             };
             if (texture == null) continue; // TODO: Other stuff
