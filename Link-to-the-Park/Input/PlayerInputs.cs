@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.XInput;
 
 namespace LinkToThePark.Input;
 public class PlayerInputs
@@ -10,15 +11,17 @@ public class PlayerInputs
     private KeyboardState currentKeyboard = new KeyboardState();
     private MouseState previousMouse = new MouseState();
     private MouseState currentMouse = new MouseState();
+    private GamePadState preveiousGamepad = new GamePadState();
+    private GamePadState currentGamepad = new GamePadState();
     private readonly Dictionary<InputAction, InputBinding[]> bindings = new()
     {
-        [InputAction.MoveUp]    = new[] {new InputBinding(Keys.Up), new InputBinding(Keys.W)},
-        [InputAction.MoveDown]  = new[] {new InputBinding(Keys.Down), new InputBinding(Keys.S)},
-        [InputAction.MoveLeft]  = new[] {new InputBinding(Keys.Left), new InputBinding(Keys.A)},
-        [InputAction.MoveRight] = new[] {new InputBinding(Keys.Right), new InputBinding(Keys.D)},
-        [InputAction.Attack]      = new[] {new InputBinding(Keys.Space), new InputBinding(MouseButton.Left)},
-        [InputAction.Confirm]   = new[] {new InputBinding(Keys.Enter)},
-        [InputAction.Quit]      = new[] {new InputBinding(Keys.Escape)},
+        [InputAction.MoveUp]    = new[] {new InputBinding(Keys.Up), new InputBinding(Keys.W), new InputBinding(Buttons.DPadUp), new InputBinding(Buttons.LeftThumbstickUp)},
+        [InputAction.MoveDown]  = new[] {new InputBinding(Keys.Down), new InputBinding(Keys.S), new InputBinding(Buttons.DPadDown), new InputBinding(Buttons.LeftThumbstickDown)},
+        [InputAction.MoveLeft]  = new[] {new InputBinding(Keys.Left), new InputBinding(Keys.A), new InputBinding(Buttons.DPadLeft), new InputBinding(Buttons.LeftThumbstickLeft)},
+        [InputAction.MoveRight] = new[] {new InputBinding(Keys.Right), new InputBinding(Keys.D), new InputBinding(Buttons.DPadRight), new InputBinding(Buttons.LeftThumbstickRight)},
+        [InputAction.Attack]    = new[] {new InputBinding(Keys.Space), new InputBinding(MouseButton.Left), new InputBinding(Buttons.X)},
+        [InputAction.Confirm]   = new[] {new InputBinding(Keys.Enter), new InputBinding(Buttons.Start)},
+        [InputAction.Quit]      = new[] {new InputBinding(Keys.Escape), new InputBinding(Buttons.Back)},
         [InputAction.Debug]     = new[] {new InputBinding(Keys.F9)}
     };
     public IReadOnlyList<InputBinding> GetBindings(InputAction action) => bindings[action];
@@ -88,10 +91,12 @@ public class PlayerInputs
     {
         previousKeyboard = currentKeyboard;
         previousMouse = currentMouse;
+        preveiousGamepad = currentGamepad;
         if (shouldUpdate)
         {
             currentKeyboard = Keyboard.GetState();
             currentMouse = Mouse.GetState();
+            currentGamepad = GamePad.GetState(0);
         }
         else
         {

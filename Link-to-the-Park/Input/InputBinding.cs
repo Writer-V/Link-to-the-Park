@@ -6,6 +6,7 @@ public readonly record struct InputBinding
     public readonly InputDevice Device;
     public readonly Keys Key;
     public readonly MouseButton Button;
+    public readonly Buttons gamePadButton;
     public InputBinding(Keys key)
     {
         Device = InputDevice.Keyboard;
@@ -16,12 +17,18 @@ public readonly record struct InputBinding
         Device = InputDevice.Mouse;
         Button = button;
     }
+    public InputBinding(Buttons button)
+    {
+        Device = InputDevice.Gamepad;
+        gamePadButton = button;
+    }
     public bool IsDown(KeyboardState state)
     {
         if (Device != InputDevice.Keyboard) return false;
         return state.IsKeyDown(Key);
     }
     public bool IsDown(MouseState state)
+
     {
         if (Device != InputDevice.Mouse) return false;
         switch (Button)
@@ -39,5 +46,10 @@ public readonly record struct InputBinding
             default:
                 return false;
         }
+    }
+    public bool IsDown(GamePadState state)
+    {
+        if(Device != InputDevice.Gamepad) return false;
+        return state.IsButtonDown(gamePadButton);
     }
 }
