@@ -24,23 +24,22 @@ public class PlayingScreen : BaseScreen
     }
     public override void Enter()
     {
-        SetCurrentMap(currentArea);
+        SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         player = new(new Point(10,12));
     }
 
     public override void Exit()
     {
     }
-    private void SetCurrentMap(Point area)
+    private void SetCurrentMap(string? areaName)
     {
-        string? areaName = worldMap[area.X, area.Y];
         if(areaName == null) throw new InvalidOperationException("Attempted to load null map file.");
         Map? returnMap;
         if(maps.TryGetValue(areaName, out returnMap)) 
             currentMap = returnMap;
         else
         {
-            returnMap = new($"maps/{areaName}.tmj");
+            returnMap = new(areaName);
             maps.Add(areaName, returnMap);
             currentMap = returnMap;
         }
@@ -48,6 +47,8 @@ public class PlayingScreen : BaseScreen
     }
     private bool TryChangeArea(Point direction)
     {
+        if(currentMap.Name != worldMap[currentArea.X, currentArea.Y])
+            return false;
         Point target = currentArea + direction;
         bool canChange;
         if(
@@ -60,9 +61,9 @@ public class PlayingScreen : BaseScreen
             canChange = false;
         else
         {
-            canChange = true;
-            SetCurrentMap(target);
+            SetCurrentMap(worldMap[target.X, target.Y]);
             currentArea = target;
+            canChange = true;
         }
         return canChange;
     }
@@ -93,6 +94,14 @@ public class PlayingScreen : BaseScreen
         }
         player.Update(gameTime);
 
+        if(!player.IsMoving && currentMap.Doors.TryGetValue(player.Position, out string? target))
+        {
+            Point faceDirection = player.FacingTile - player.Position;
+            string from = currentMap.Name;
+            SetCurrentMap(target);
+            Point otherSide = currentMap.Doors.First(d => d.Value == from).Key;
+            player.PlaceAt(otherSide + faceDirection);
+        }
         if(inputs.IsActionPressed(InputAction.Attack) &&
             !player.IsMoving &&
             !player.IsAttacking)

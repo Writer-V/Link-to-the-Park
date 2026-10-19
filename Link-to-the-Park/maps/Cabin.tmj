@@ -233,6 +233,11 @@
                          "name":"ExitMap",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"Target",
+                         "type":"string",
+                         "value":"NW"
                         }],
                  "rotation":0,
                  "type":"",

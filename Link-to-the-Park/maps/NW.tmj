@@ -257,6 +257,11 @@
                          "name":"EnterCabin",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"Target",
+                         "type":"string",
+                         "value":"Cabin"
                         }],
                  "rotation":0,
                  "type":"",

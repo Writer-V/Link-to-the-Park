@@ -10,10 +10,12 @@ using Microsoft.Xna.Framework.Graphics;
 namespace LinkToThePark.World;
 public class Map
 {
+    public string Name {get;}
     public List<Tile?[,]> LayersAbove { get; private set; } = new();
     public List<Tile?[,]> LayersBelow { get; private set; } = new();
     public List<Treasure> Treasures {get;} = new();
     public List<Patrol> Patrols {get;} = new();
+    public Dictionary<Point, string> Doors {get;} = new();
     private bool[,] solidMap = null!;
     public const int TileSize = 32;
     public int Width => solidMap.GetLength(0);
@@ -25,9 +27,10 @@ public class Map
     public bool IsSolid(Point position) => 
         solidMap[position.X,position.Y] ||
         Treasures.Any(t => t.Tile == position && t.BlocksMovement);
-    public Map(string filepath)
+    public Map(string filename)
     {
-        TiledMap tiledMap = TiledLoader.Load(filepath);
+        Name = filename;
+        TiledMap tiledMap = TiledLoader.Load($"maps/{filename}.tmj");
         bool passedPlayerLayer = false;
         Dictionary<int, List<(int Order, Point Tile, EnemyType Type)>> waypointsById = new();
         solidMap = new bool[tiledMap.Width, tiledMap.Height];
@@ -41,17 +44,16 @@ public class Map
                 {
                     foreach (TiledObject tiledObject in tiledMap.Layers[i].Objects!)
                     {
+                        Point tileLocation = new((int)(tiledObject.X / TileSize), (int)(tiledObject.Y / TileSize));
                         if(tiledObject.Type == "Treasure")
                         {
                             Treasures.Add(new(
                                 Enum.Parse<TreasureType>(
                                     tiledObject.GetProperty("Type")?.GetString() ?? "Chest"),
-                                new((int)(tiledObject.X / TileSize), (int)(tiledObject.Y / TileSize)),
-                                tiledObject.GetProperty("PointValue")?.GetInt32() ?? 0));
+                                    tileLocation, tiledObject.GetProperty("PointValue")?.GetInt32() ?? 0));
                         }
                         else if (tiledObject.Type == "EnemyLocation")
                         {
-                            Point tile = new((int)(tiledObject.X / TileSize), (int)(tiledObject.Y / TileSize));
                             foreach (JsonElement entry in tiledObject.GetProperty("Enemies")!.Value.EnumerateArray())
                             {
                                 JsonElement fields = entry.GetProperty("value");
@@ -62,10 +64,14 @@ public class Map
                                 EnemyType type = fields.TryGetProperty("Type", out JsonElement typeElement) 
                                     ? Enum.Parse<EnemyType>(typeElement.ToString()) : EnemyType.Skeleton;
                                 if(waypointsById.ContainsKey(id))
-                                    waypointsById[id].Add((order, tile, type));
+                                    waypointsById[id].Add((order, tileLocation, type));
                                 else 
-                                    waypointsById.Add(id, new List<(int Order, Point Tile, EnemyType Type)> {(order, tile, type)});
+                                    waypointsById.Add(id, new List<(int Order, Point Tile, EnemyType Type)> {(order, tileLocation, type)});
                             }
+                        }
+                        else if(tiledObject.GetProperty("Target") is JsonElement target)
+                        {
+                            Doors[tileLocation] = target.GetString()!;
                         }
                     }
                 }
@@ -160,9 +166,18 @@ public class Map
                         Color.Red * 0.4f);
             }
         }
+        foreach(var door in Doors)
+        {
+            spriteBatch.Draw(
+                TextureManager.Pixel,
+                new Rectangle(door.Key * new Point(TileSize), new(TileSize)),
+                Color.Blue * 0.5f);
+        }
     }
     public void DrawTreasures(SpriteBatch spriteBatch)
     {
+        // Compensate for the sprites being to small inside a tile
+        Point compensation = new((int)(TileSize * 0.15));
         foreach (var treasure in Treasures)
         {
             if(treasure.Opened && 
@@ -179,7 +194,9 @@ public class Map
             };
             if (texture == null) continue; // TODO: Other stuff
             spriteBatch.Draw(texture,
-                new Rectangle(treasure.Tile * new Point(TileSize), new Point(TileSize)),
+                new Rectangle(
+                    treasure.Tile * new Point(TileSize) - compensation, 
+                    new Point(TileSize) + (compensation * 2)),
                 new Rectangle(sourceX, 0, TileSize, TileSize), Color.White);
         }
     }
