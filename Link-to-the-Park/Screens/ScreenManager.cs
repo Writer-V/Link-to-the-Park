@@ -36,6 +36,9 @@ public class ScreenManager
             case GameState.Playing:
                 currentScreen = new PlayingScreen(RequestGameState);
                 break;
+            case GameState.Victory:
+                currentScreen = new VictoryScreen(RequestGameState);
+                break;
             case GameState.GameOver:
                 currentScreen = new GameOverScreen(RequestGameState);
                 break;

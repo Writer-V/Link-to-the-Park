@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using LinkToThePark.Graphics;
@@ -13,13 +14,16 @@ public class Map
     public string Name {get;}
     public List<Tile?[,]> LayersAbove { get; private set; } = new();
     public List<Tile?[,]> LayersBelow { get; private set; } = new();
+    private readonly Dictionary<string, Tile?[,]> layersByName = new();
+    private readonly HashSet<Tile?[,]> hiddenLayers = new();
+    public readonly List<Point> CastleGates = new();
     public List<Treasure> Treasures {get;} = new();
     public List<Patrol> Patrols {get;} = new();
     public Dictionary<Point, string> Doors {get;} = new();
     private bool[,] solidMap = null!;
     public const int TileSize = 32;
-    public int Width => solidMap.GetLength(0);
-    public int Height => solidMap.GetLength(1);
+    public int Width {get;}
+    public int Height {get;}
     private Texture2D chestTexture;
     private Texture2D vaseTexture;
     private Texture2D offeringTexture;
@@ -31,12 +35,17 @@ public class Map
     {
         Name = filename;
         TiledMap tiledMap = TiledLoader.Load($"maps/{filename}.tmj");
+        Height = tiledMap.Height;
+        Width = tiledMap.Width;
+        Debug.WriteLine($"Width: {Width}, Height: {Height}");
         bool passedPlayerLayer = false;
         Dictionary<int, List<(int Order, Point Tile, EnemyType Type)>> waypointsById = new();
         solidMap = new bool[tiledMap.Width, tiledMap.Height];
 
+        // Go through the layers..
         for (int i = 0; i < tiledMap.Layers.Count; i++)
         {
+            // The object layer is weird — deal with it.
             if (tiledMap.Layers[i].Type == "objectgroup")
             {
                 passedPlayerLayer = true;
@@ -73,15 +82,23 @@ public class Map
                         {
                             Doors[tileLocation] = target.GetString()!;
                         }
+                        else if(tiledObject.GetProperty("CastleGate") is JsonElement gate && gate.GetBoolean())
+                            CastleGates.Add(tileLocation);
                     }
                 }
                 continue;
             }
 
+            // Add tile layers to places
+            Tile?[,] layer = TiledLoader.LoadLayer(tiledMap.Layers[i], tiledMap);
+            if(layer == null) continue;
+            if(!tiledMap.Layers[i].Visible)
+                hiddenLayers.Add(layer);
+            layersByName.Add(tiledMap.Layers[i].Name, layer);
             if (passedPlayerLayer)
-                LayersAbove.Add(TiledLoader.LoadLayer(tiledMap.Layers[i], tiledMap));
+                LayersAbove.Add(layer);
             else
-                LayersBelow.Add(TiledLoader.LoadLayer(tiledMap.Layers[i], tiledMap));
+                LayersBelow.Add(layer);
         }
         // Create patrols from the temp dictinary
         foreach(var patrolEntry in waypointsById)
@@ -94,28 +111,47 @@ public class Map
         }
 
         // Build the blocking solid areas.
-        for (int x = 0; x < tiledMap.Width; x++)
-        {
-            for (int y = 0; y < tiledMap.Height; y++)
-            {
-                bool anySolid = false;
-                bool anyBridge = false;
-                foreach (var layer in LayersAbove.Concat(LayersBelow))
-                {
-                    if (layer[x,y] != null && layer[x, y]!.IsSolid)
-                        anySolid = true;
-                    if (layer[x,y] != null && layer[x,y]!.IsBridge)
-                        anyBridge = true;
-                }
-                solidMap[x, y] = anySolid && !anyBridge;
-            }
-        }
+        BuildSolidMap();
 
         // Load treasure texturse
         chestTexture = TextureManager.Get("items/Chest");
         vaseTexture = TextureManager.Get("items/BreakablePots");
         offeringTexture = TextureManager.Get("items/Offering");
         keyTexture = TextureManager.Get("items/FinalKey");
+    }
+    private void BuildSolidMap()
+    {
+        bool[,] isAnySolid = new bool[Width, Height]; // Bool default is false
+        bool[,] isAnyBridge = new bool[Width,Height];
+        foreach(var layer in layersByName)
+        {
+            if(hiddenLayers.Contains(layer.Value!) || layer.Value == null) continue;
+            for(int x = 0; x < Width; x++)
+            {
+                for(int y = 0; y < Height; y++)
+                {
+                    if(layer.Value[x,y] != null && layer.Value[x,y]!.IsSolid)
+                        isAnySolid[x,y] = true;
+                    if(layer.Value[x,y] != null && layer.Value[x,y]!.IsBridge)
+                        isAnyBridge[x,y] = true;
+                }
+            }
+        }
+        // And now to combine...
+        for(int x = 0; x < Width; x++)
+            for(int y = 0; y < Height; y++)
+                solidMap[x,y] = isAnySolid[x,y] && !isAnyBridge[x,y];
+    }
+    public void SetLayerVisible(string name, bool visibility)
+    {
+        Tile?[,] layer = new Tile[Width,Height];
+        if(layersByName.TryGetValue(name, out layer!))
+        {
+            if(visibility) hiddenLayers.Remove(layer);
+            else hiddenLayers.Add(layer);
+            BuildSolidMap();
+        }
+        else throw new KeyNotFoundException();
     }
     public bool IsInside(Point tile)
     {
@@ -127,6 +163,7 @@ public class Map
     }
     private void DrawLayer(SpriteBatch spriteBatch, Tile?[,] layer)
     {
+        if(hiddenLayers.Contains(layer)) return;
         for (int x = 0; x < layer.GetLength(0); x++)
         {
             for (int y = 0; y < layer.GetLength(1); y++)

@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using LinkToThePark.Graphics;
 using LinkToThePark.World;
@@ -9,8 +10,7 @@ public class Player : Actor
 {
     public int CurrentLives {get; private set;} = 3;
     public const int MaxLives = 3; // Might change.
-    public bool HasOffering {get; private set;}
-    public bool HasKey {get; private set;}
+    public StoryProgressState Progression {get; private set;}
     private float invulnerableTimer = 0;
     private bool IsInvulnerable => invulnerableTimer > 0;
     private const float invulnerableBase = 1.5f; // set to...
@@ -22,6 +22,7 @@ public class Player : Actor
     {
         texture = TextureManager.Get("characters/PlayerCharacter1");
         facing = new(0,1);
+        Progression = StoryProgressState.LockedOut;
     }
     public void Attack()
     {
@@ -34,17 +35,27 @@ public class Player : Actor
         invulnerableTimer = invulnerableBase;
         Debug.WriteLine($"Lives: {CurrentLives} / {MaxLives}");
     }
-    public void PickUp(TreasureType item)
+    public bool TryPickUp(TreasureType item)
     {
-        switch (item)
+        if(item == TreasureType.Chest || item == TreasureType.BreakableVase)
+            return true;
+        if(Progression == StoryProgressState.LockedOut &&
+            item == TreasureType.Item_Offering)
         {
-            case TreasureType.Item_Offering:
-                HasOffering = true;
-                break;
-            case TreasureType.Item_Key:
-                HasKey = true;
-                break;
+            Progression = StoryProgressState.HasOffering;
+            return true;
         }
+        else if(Progression == StoryProgressState.HasOffering &&
+            item == TreasureType.Item_Key)
+        {
+            Progression = StoryProgressState.HasKey;
+            return true;
+        }
+        else return false;
+    }
+    public void EnterCastle()
+    {
+        Progression = StoryProgressState.EnteredCastle;
     }
     public override void Update(GameTime gameTime)
     {

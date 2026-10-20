@@ -19,6 +19,8 @@ public class PlayingScreen : BaseScreen
     private Player player = null!;
     private List<Enemy> enemies = new();
     private int score = 0;
+    private float dramaTimer; // When something needs to hold tension
+    private bool bridgeUnlocked;
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
     {
     }
@@ -26,6 +28,7 @@ public class PlayingScreen : BaseScreen
     {
         SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         player = new(new Point(10,12));
+
     }
 
     public override void Exit()
@@ -70,6 +73,8 @@ public class PlayingScreen : BaseScreen
 
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
+        StoryMomentUpdates(gameTime);
+        
         //One Direction. Not a band, but a lack of diagonals.
         Point direction = new();
         if(inputs.IsActionHeld(InputAction.MoveUp))
@@ -80,7 +85,7 @@ public class PlayingScreen : BaseScreen
             direction = new Point(-1,0);
         else if(inputs.IsActionHeld(InputAction.MoveRight))
             direction = new Point(1,0);
-        if(direction != Point.Zero)
+        if(direction != Point.Zero && dramaTimer <= 0)
         {
             MoveResult result = player.Move(direction, currentMap);
             if(result == MoveResult.MapExit && TryChangeArea(direction))
@@ -94,6 +99,7 @@ public class PlayingScreen : BaseScreen
         }
         player.Update(gameTime);
 
+        // Player encuonters door:
         if(!player.IsMoving && currentMap.Doors.TryGetValue(player.Position, out string? target))
         {
             Point faceDirection = player.FacingTile - player.Position;
@@ -102,6 +108,8 @@ public class PlayingScreen : BaseScreen
             Point otherSide = currentMap.Doors.First(d => d.Value == from).Key;
             player.PlaceAt(otherSide + faceDirection);
         }
+        
+        //Player hits something
         if(inputs.IsActionPressed(InputAction.Attack) &&
             !player.IsMoving &&
             !player.IsAttacking)
@@ -109,6 +117,7 @@ public class PlayingScreen : BaseScreen
             player.Attack();
             foreach(var enemy in enemies)
             {
+                // Was an enemy hit?
                 if(enemy.Position == player.FacingTile)
                 {
                     enemy.TakeHit();
@@ -118,6 +127,7 @@ public class PlayingScreen : BaseScreen
             }
             foreach(var treasure in currentMap.Treasures)
             {
+                // Was a treasure hit?
                 if(treasure.Tile == player.FacingTile && 
                     !treasure.Opened &&
                     treasure.Type is TreasureType.Chest or 
@@ -127,28 +137,62 @@ public class PlayingScreen : BaseScreen
                     score += treasure.Points;
                     Debug.WriteLine($"Score: {score} (added {treasure.Points}) — Solidity is {treasure.BlocksMovement}");
                 }
+                // But, like, an important one?
                 else if(treasure.Tile == player.Position &&
                     !player.IsMoving && !treasure.Opened &&
-                    treasure.Type is TreasureType.Item_Key
-                    or TreasureType.Item_Offering)
+                    player.TryPickUp(treasure.Type))
                 {
-                    player.PickUp(treasure.Type);
                     treasure.Open();
+                    if(treasure.Type == TreasureType.Item_Key)
+                    {
+                        // Bridge really should appear one step at a time.
+                        currentMap.SetLayerVisible("HiddenBridge1", true);
+                        dramaTimer = 1.5F;
+                    }
                     Debug.WriteLine($"Picked up {treasure.Type}");
                 }
             }
+            
+            /* Player encounters winning castle gates
+            This should be the character backing away as the
+            porteculis rises and the other PC comes out, followed
+            by end message to reveal the twist. */ 
+            if (player.Progression == StoryProgressState.HasKey && currentMap.CastleGates.Contains(player.FacingTile))
+            {
+                currentMap.SetLayerVisible("Porteculis1", false);
+                currentMap.SetLayerVisible("Porteculis2", true);
+                player.EnterCastle();
+                dramaTimer = 1.5f;
+            }
+            // Remove dead enemies
             enemies.RemoveAll(e => e.IsDead);
         }
 
         foreach (var enemy in enemies)
             enemy.Update(gameTime, currentMap);
         foreach(var enemy in enemies)
-            if(enemy.Position == player.Position)
+            if(enemy.Position == player.Position && dramaTimer <= 0)
                 player.TakeHit();
         if(player.CurrentLives <= 0)
             requestGameState(GameState.GameOver);
     }
-    
+    private void StoryMomentUpdates(GameTime gameTime)
+    {
+        if(dramaTimer > 0) // Every tension must end...
+            dramaTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        
+        // Oh, and also every story.
+        if(dramaTimer <= 0 && player.Progression == StoryProgressState.EnteredCastle)
+            requestGameState(GameState.Victory);
+
+        // But so, must bridges... come..back..?
+        if(dramaTimer <= 0 && !bridgeUnlocked &&
+            player.Progression == StoryProgressState.HasKey)
+        {
+            currentMap.SetLayerVisible("HiddenBridge2", true);
+            bridgeUnlocked = true;
+        }
+    }
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)
     {
         currentMap.DrawBelow(spriteBatch);
