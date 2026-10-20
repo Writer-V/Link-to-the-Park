@@ -8,7 +8,7 @@ public class Hud
 {
     private readonly Texture2D bar = TextureManager.Get("UI/hpBar");
     private readonly Texture2D heart = TextureManager.Get("UI/hpHeart");
-    private readonly Texture2D heartEmpty = TextureManager.Get("UI/hp/HeartEmpty");
+    private readonly Texture2D heartEmpty = TextureManager.Get("UI/hpHeartEmpty");
     private readonly Texture2D itemBox = TextureManager.Get("UI/pickedUpQuestItemBox");
     private readonly Texture2D keyTexture = TextureManager.Get("items/FinalKey");
     private readonly Texture2D offeringTexture = TextureManager.Get("items/Offering");
@@ -32,8 +32,8 @@ public class Hud
         spriteBatch.DrawString(
             TextureManager.FontSmall,
             score.ToString(),
-            new Vector2(barPos.X + bar.Width - scoreSize.X - 8,
-            barPos.Y + 12), Color.White);
+            new Vector2(barPos.X + bar.Width - scoreSize.X - 24,
+            barPos.Y + bar.Height/2 - scoreSize.Y/2), Color.White);
 
         // Item box
         spriteBatch.Draw(
@@ -59,9 +59,9 @@ public class Hud
                     keyTexture,
                     new Rectangle(
                         barPos.X + bar.Width + 12
-                         + keyTexture.Width/2 -16, 
+                         + keyTexture.Width/2 -8, 
                         barPos.Y 
-                        + itemBox.Height/2- 16,
+                        + itemBox.Height/2 - 16,
                         32, 32),
                     new Rectangle(9, 0, 32, 32),
                     Color.White);

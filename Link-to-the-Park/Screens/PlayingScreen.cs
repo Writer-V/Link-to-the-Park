@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LinkToThePark.Actors;
+using LinkToThePark.Graphics;
 using LinkToThePark.Input;
 using LinkToThePark.UI;
 using LinkToThePark.World;
