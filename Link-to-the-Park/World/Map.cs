@@ -213,14 +213,15 @@ public class Map
     }
     public void DrawTreasures(SpriteBatch spriteBatch)
     {
-        // Compensate for the sprites being to small inside a tile
-        Point compensation = new((int)(TileSize * 0.15));
+        // Compensate for the sprites being too small inside a tile
+        Point compensation = new((int)(TileSize * 0.2));
         foreach (var treasure in Treasures)
         {
             if(treasure.Opened && 
                 treasure.Type is TreasureType.Item_Key or 
                 TreasureType.Item_Offering)
                     continue;
+            
             (Texture2D? texture, int sourceX) = treasure.Type switch
             {
                 TreasureType.Chest         => (chestTexture, treasure.Opened ? 64 : 0),
@@ -230,6 +231,7 @@ public class Map
                 _ => (null, 0)
             };
             if (texture == null) continue; // TODO: Other stuff
+            
             spriteBatch.Draw(texture,
                 new Rectangle(
                     treasure.Tile * new Point(TileSize) - compensation, 

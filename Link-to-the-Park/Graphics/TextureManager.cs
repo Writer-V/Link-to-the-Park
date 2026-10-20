@@ -11,12 +11,18 @@ public static class TextureManager
     private readonly static Dictionary<string, Texture2D> textures = new();
     
     public static Texture2D Pixel { get; private set; } = null!;
+    public static SpriteFont Font {get; private set;} = null!;
+    public static SpriteFont FontBig {get; private set;} = null!;
+    public static SpriteFont FontSmall {get; private set;} = null!;
     public static void Initialize(ContentManager contentManager, GraphicsDevice graphicsDevice)
     {
         content = contentManager;
         graphics = graphicsDevice;
         Pixel = new(graphics, 1, 1);
         Pixel.SetData([Color.White]);
+        Font = content.Load<SpriteFont>("UI/PixelParchment-16");
+        FontBig = content.Load<SpriteFont>("UI/PixelParchment-24");
+        FontSmall = content.Load<SpriteFont>("UI/PixelParchment-14");
     }
     public static Texture2D Get(string asset)
     {

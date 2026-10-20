@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using LinkToThePark.Actors;
 using LinkToThePark.Input;
+using LinkToThePark.UI;
 using LinkToThePark.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,6 +20,7 @@ public class PlayingScreen : BaseScreen
     private Player player = null!;
     private List<Enemy> enemies = new();
     private int score = 0;
+    private Hud hud = new();
     private float dramaTimer; // When something needs to hold tension
     private bool bridgeUnlocked;
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
@@ -74,7 +76,7 @@ public class PlayingScreen : BaseScreen
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
         StoryMomentUpdates(gameTime);
-        
+
         //One Direction. Not a band, but a lack of diagonals.
         Point direction = new();
         if(inputs.IsActionHeld(InputAction.MoveUp))
@@ -202,5 +204,6 @@ public class PlayingScreen : BaseScreen
         player.Draw(spriteBatch);
         currentMap.DrawAbove(spriteBatch);
         if(viewDebug) currentMap.DrawDebug(spriteBatch);
+        hud.Draw(spriteBatch, player, score);
     }
 }

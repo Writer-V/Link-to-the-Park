@@ -49,7 +49,7 @@ public class LinkPark : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
         spriteBatch.Begin();
         screenManager.Draw(spriteBatch);
         spriteBatch.End();

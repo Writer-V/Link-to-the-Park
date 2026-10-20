@@ -28,6 +28,13 @@ public class MainMenuScreen : BaseScreen
     
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)
     {
-        spriteBatch.Draw(TextureManager.Pixel, new Rectangle(0, 0, 1, 1), Color.White);
+        
+        string winText = "They barred the castle... You need an offering to get the key.";
+        Vector2 size = TextureManager.Font.MeasureString(winText);
+
+        spriteBatch.Draw(TextureManager.Get("UI/mainMenuBg"), 
+            new Rectangle(0, 0, 640, 480), Color.White);
+        spriteBatch.DrawString(TextureManager.Font, winText, 
+            new Vector2(320, 240) - size / 2, Color.White);
     }
 }

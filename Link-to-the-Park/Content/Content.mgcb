@@ -3691,6 +3691,30 @@
 /processorParam:Version=3.8.5.1
 /build:UI/pickedUpQuestItemBox.png
 
+#begin UI/PixelParchment-14.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/processorParam:Version=3.8.5.1
+/build:UI/PixelParchment-14.spritefont
+
+#begin UI/PixelParchment-16.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/processorParam:Version=3.8.5.1
+/build:UI/PixelParchment-16.spritefont
+
+#begin UI/PixelParchment-24.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/processorParam:Version=3.8.5.1
+/build:UI/PixelParchment-24.spritefont
+
 #begin UI/textFrame_9-slice.png
 /importer:TextureImporter
 /processor:TextureProcessor
