@@ -63,8 +63,8 @@ public abstract class Actor
     }
     public virtual void Update(GameTime gameTime)
     {
-        animator?.Play(AnimationSelection());
-        animator?.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+        animator.Play(AnimationSelection());
+        animator.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
         if(!IsMoving) return;
         Vector2 target = Position.ToVector2() * Map.TileSize;
         float step = speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -80,6 +80,6 @@ public abstract class Actor
     }
     public virtual void Draw(SpriteBatch spriteBatch, Color? color = null)
     {
-        animator?.Draw(spriteBatch, DrawPosition + TileAnchor, color);
+        animator.Draw(spriteBatch, DrawPosition + TileAnchor, color);
     }
 }

@@ -50,7 +50,7 @@ public class LinkPark : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);
-        spriteBatch.Begin();
+        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
         screenManager.Draw(spriteBatch);
         spriteBatch.End();
         base.Draw(gameTime);
