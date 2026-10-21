@@ -1,3 +1,4 @@
+using LinkToThePark.Graphics;
 using LinkToThePark.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,11 +8,12 @@ public abstract class Actor
 {
     public Point Position {get; protected set;}
     public Vector2 DrawPosition {get; private set;}
+    protected static readonly Vector2 TileAnchor = 
+        new(Map.TileSize / 2, Map.TileSize - 1); // (16, 31)
     protected Point facing;
     public bool IsMoving {get; protected set;}
     protected float speed;
-    // Future animator goes here
-    protected Texture2D? texture; //Shouldn't be nullable — fix with along animations
+    protected SpriteAnimator animator = null!;
     public Actor(Point position, float speed)
     {
         Position = position;
@@ -39,6 +41,7 @@ public abstract class Actor
     }
     public virtual void Update(GameTime gameTime)
     {
+        animator?.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
         if(!IsMoving) return;
         Vector2 target = Position.ToVector2() * Map.TileSize;
         float step = speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -52,5 +55,8 @@ public abstract class Actor
             DrawPosition += Vector2.Normalize(target - DrawPosition) * step;
         }
     }
-    // TODO: Move general Actor Draw here once it can call an animator.
+    public virtual void Draw(SpriteBatch spriteBatch, Color? color = null)
+    {
+        animator?.Draw(spriteBatch, DrawPosition + TileAnchor, color);
+    }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LinkToThePark.Actors;
+using LinkToThePark.Graphics;
 using LinkToThePark.Input;
 using LinkToThePark.UI;
 using LinkToThePark.World;
@@ -22,6 +23,7 @@ public class PlayingScreen : BaseScreen
     private int score = 0;
     private Hud hud = new();
     private MessageBox messageBox = new();
+    private bool StoryMoment => player.Progression >= StoryProgressState.GateOpens;
     private float dramaTimer; // When something needs to hold tension
     private bool bridgeUnlocked;
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
@@ -31,6 +33,7 @@ public class PlayingScreen : BaseScreen
     {
         SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         player = new(new Point(10,12));
+        messageBox.Show("You: Locked out... The key is south... but I need an offering to the altar.", player.ProgressStory);
     }
 
     public override void Exit()
@@ -92,7 +95,10 @@ public class PlayingScreen : BaseScreen
             direction = new Point(-1,0);
         else if(inputs.IsActionHeld(InputAction.MoveRight))
             direction = new Point(1,0);
-        if(direction != Point.Zero && dramaTimer <= 0)
+        if(direction != Point.Zero && 
+            dramaTimer <= 0 && 
+            !StoryMoment &&
+            !player.IsHoldingItem)
         {
             MoveResult result = player.Move(direction, currentMap);
             if(result == MoveResult.MapExit && TryChangeArea(direction))
@@ -154,7 +160,7 @@ public class PlayingScreen : BaseScreen
                     {
                         // Bridge really should appear one step at a time.
                         currentMap.SetLayerVisible("HiddenBridge1", true);
-                        dramaTimer = 1.5F;
+                        dramaTimer = 0.5f;
                     }
                     Debug.WriteLine($"Picked up {treasure.Type}");
                 }
@@ -168,8 +174,8 @@ public class PlayingScreen : BaseScreen
             {
                 currentMap.SetLayerVisible("Porteculis1", false);
                 currentMap.SetLayerVisible("Porteculis2", true);
-                player.EnterCastle();
-                dramaTimer = 1.5f;
+                player.ProgressStory();
+                dramaTimer = 0.2f;
             }
             // Remove dead enemies
             enemies.RemoveAll(e => e.IsDead);
@@ -178,7 +184,10 @@ public class PlayingScreen : BaseScreen
         foreach (var enemy in enemies)
             enemy.Update(gameTime, currentMap);
         foreach(var enemy in enemies)
-            if(enemy.Position == player.Position && dramaTimer <= 0)
+            if(enemy.Position == player.Position && 
+                dramaTimer <= 0 && 
+                !StoryMoment &&
+                !player.IsHoldingItem)
                 player.TakeHit();
         if(player.CurrentLives <= 0)
             requestGameState(GameState.GameOver);
@@ -189,11 +198,26 @@ public class PlayingScreen : BaseScreen
             dramaTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
         
         // Oh, and also every story.
-        if(dramaTimer <= 0 && player.Progression == StoryProgressState.EnteredCastle)
-            requestGameState(GameState.Victory);
-
+        if(dramaTimer <= 0 && player.Progression == StoryProgressState.GateOpens)
+        {
+            player.ProgressStory();
+            player.Move(new Point(0,1), currentMap);
+            dramaTimer = 0.4f;
+        }
+        else if(dramaTimer <= 0 && player.Progression == StoryProgressState.BackAway)
+        {
+            // Move NPC looking like other player and move
+            // them from spawn to 15,10 while animating movement.
+            if(player.Position == new Point(15,10)) //Player might be in the way.
+                player.Move(new Point(-1,0), currentMap);
+            player.ProgressStory();
+        }
+        else if(player.Progression == StoryProgressState.OtherWalksOut)
+            messageBox.Show("Finally. Now get out — the castle is mine!", player.ProgressStory);
+        else if(player.Progression == StoryProgressState.CharMessage)
+            messageBox.Show("You suck... (I'll have to get an offering for my own key...)", () => requestGameState(GameState.Victory));
         // But so, must bridges... come..back..?
-        if(dramaTimer <= 0 && !bridgeUnlocked &&
+        else if(dramaTimer <= 0 && !bridgeUnlocked &&
             player.Progression == StoryProgressState.HasKey)
         {
             currentMap.SetLayerVisible("HiddenBridge2", true);
@@ -207,6 +231,21 @@ public class PlayingScreen : BaseScreen
         foreach (var enemy in enemies)
             enemy.Draw(spriteBatch, player.DrawPosition);
         player.Draw(spriteBatch);
+
+        if(player.IsHoldingItem && player.Progression == StoryProgressState.HasOffering)
+            spriteBatch.Draw(
+                TextureManager.Get("items/Offering"),
+                new Rectangle(player.Position.X * Map.TileSize,
+                    (player.Position.Y - 1) * Map.TileSize - 16, 23, 23),
+                Color.White);
+        if(player.IsHoldingItem && player.Progression == StoryProgressState.HasKey)
+            spriteBatch.Draw(
+                TextureManager.Get("items/FinalKey"),
+                new Rectangle(player.Position.X * Map.TileSize,
+                    (player.Position.Y - 1) * Map.TileSize - 16, 23, 23),
+                new Rectangle(9, 0, 32, 32),
+                Color.White);
+        
         currentMap.DrawAbove(spriteBatch);
         if(viewDebug) currentMap.DrawDebug(spriteBatch);
         hud.Draw(spriteBatch, player, score);

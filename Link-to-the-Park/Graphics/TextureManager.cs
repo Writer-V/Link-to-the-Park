@@ -36,6 +36,15 @@ public static class TextureManager
         }
         return texture;
     }
+    public static void DrawBackground(SpriteBatch spriteBatch, string background, Point windowSize)
+    {
+        Texture2D tex = Get(background);
+        float scaleFactor = MathHelper.Max(windowSize.X/(float)tex.Width, windowSize.Y/(float)tex.Height);
+        spriteBatch.Draw(tex, new Rectangle(Point.Zero, windowSize),
+        new Rectangle((int)((tex.Width - (windowSize.X/scaleFactor))/2f), 0, 
+            (int)(windowSize.X/scaleFactor), (int)(windowSize.Y/scaleFactor)),
+        Color.White);
+    }
     public static void Unload()
     {
         Pixel?.Dispose();

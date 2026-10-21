@@ -5,5 +5,9 @@ public enum StoryProgressState
     LockedOut, // Standard start
     HasOffering, // Picked up the first one
     HasKey, // Picked up thye second one
-    EnteredCastle // Triggered the ending
+    GateOpens, // First ending state
+    BackAway, // PC backs away
+    OtherWalksOut, // Non-played PC walks out
+    CharMessage, // PC speaks
+    OtherMessage // Other char speaks, the Victory
 }

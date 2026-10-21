@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace LinkToThePark.Actors;
 public class Player : Actor
 {
+    public int Character {get;} // Character 1 or 2
     public int CurrentLives {get; private set;} = 3;
     public const int MaxLives = 3; // Might change.
     public StoryProgressState Progression {get; private set;}
@@ -17,15 +18,70 @@ public class Player : Actor
     private float attackTimer = 0;
     public bool IsAttacking => attackTimer >= 0;
     private const float attackTimerBase = 0.15f; // set to..
+    private float holdItemTimer = 0;
+    private const float holdItemTimerBase = 1.5f; // set to...
+    public bool IsHoldingItem => holdItemTimer > 0;
     public Point FacingTile => Position + facing;
-    public Player(Point position) : base(position, 128f)
+    public Player(Point position, int character = 1) : base(position, 128f)
     {
-        texture = TextureManager.Get("characters/PlayerCharacter1");
+        Character = character;
+        AnimationSet animationSet = new(
+            TextureManager.Get($"characters/PlayerCharacter{character}"),
+            128, 128, 
+            AnimSequenceType.Idle, (
+                AnimSequenceType.Pose, new Point(0,128),
+                4, 8, true),
+            (
+                AnimSequenceType.Idle, new Point(0, 256),
+                4, 8, true),
+            (
+                AnimSequenceType.IdleLeft, new Point(0, 384),
+                4, 8, true),
+            (
+                AnimSequenceType.IdleRight, new Point(0, 512),
+                4, 8, true),
+            (
+                AnimSequenceType.IdleUp, new Point(0, 640),
+                4, 8, true),
+            (
+                AnimSequenceType.MoveDown, new Point(0, 768),
+                4, 8, true),
+            (
+                AnimSequenceType.MoveLeft, new Point(0, 896),
+                4, 8, true),
+            (
+                AnimSequenceType.MoveRight, new Point(0, 1024),
+                4, 8, true),
+            (
+                AnimSequenceType.MoveUp, new Point(0, 1152),
+                4, 8, true),
+            (
+                AnimSequenceType.Attack, new Point(0, 1280),
+                4, 24, true),
+            (
+                AnimSequenceType.AttackLeft, new Point(0, 1408),
+                4, 24, true),
+            (
+                AnimSequenceType.AttackRight, new Point(0, 1536),
+                4, 24, true),
+            (
+                AnimSequenceType.AttackUp, new Point(0, 1664),
+                4, 24, true)
+        );
+        animator = new(animationSet, initialAnimType: AnimSequenceType.Idle, origin: new(64,95));
         facing = new(0,1);
-        Progression = StoryProgressState.LockedOut;
+        Progression = StoryProgressState.Prologue;
     }
     public void Attack()
     {
+        if(facing == new Point(0,1))
+            animator.PlayOnce(AnimSequenceType.Attack, true);
+        else if(facing == new Point(-1,0))
+            animator.PlayOnce(AnimSequenceType.AttackLeft, true);
+        else if(facing == new Point(1,0))
+            animator.PlayOnce(AnimSequenceType.AttackRight, true);
+        else if(facing == new Point(0,-1))
+            animator.PlayOnce(AnimSequenceType.AttackUp, true);
         attackTimer = attackTimerBase;
     }
     public void TakeHit(int damage = 1) // Prepared for something dealing more damage
@@ -42,48 +98,67 @@ public class Player : Actor
         if(Progression == StoryProgressState.LockedOut &&
             item == TreasureType.Item_Offering)
         {
-            Progression = StoryProgressState.HasOffering;
+            ProgressStory();
+            holdItemTimer = holdItemTimerBase;
             return true;
         }
         else if(Progression == StoryProgressState.HasOffering &&
             item == TreasureType.Item_Key)
         {
-            Progression = StoryProgressState.HasKey;
+            ProgressStory();
             return true;
         }
         else return false;
     }
-    public void EnterCastle()
+    public void ProgressStory()
     {
-        Progression = StoryProgressState.EnteredCastle;
+        Progression = Progression switch
+        {
+            StoryProgressState.Prologue      => StoryProgressState.LockedOut,
+            StoryProgressState.LockedOut     => StoryProgressState.HasOffering,
+            StoryProgressState.HasOffering   => StoryProgressState.HasKey,
+            StoryProgressState.HasKey        => StoryProgressState.GateOpens,
+            StoryProgressState.GateOpens     => StoryProgressState.BackAway,
+            StoryProgressState.BackAway      => StoryProgressState.OtherWalksOut,
+            StoryProgressState.OtherWalksOut => StoryProgressState.CharMessage,
+            StoryProgressState.CharMessage   => StoryProgressState.OtherMessage,
+            _ => Progression
+        };
     }
     public override void Update(GameTime gameTime)
     {
+        AnimSequenceType fittingAnim = AnimSequenceType.Idle;
+        if(IsHoldingItem)
+            fittingAnim = AnimSequenceType.Pose;
+        else if(IsMoving && facing == new Point(0,1))
+            fittingAnim = AnimSequenceType.MoveDown;
+        else if(IsMoving && facing == new Point(-1,0))
+            fittingAnim = AnimSequenceType.MoveLeft;
+        else if(IsMoving && facing == new Point(1,0))
+            fittingAnim = AnimSequenceType.MoveRight;
+        else if(IsMoving && facing == new Point(0,-1))
+            fittingAnim = AnimSequenceType.MoveUp;
+        else if(facing == new Point(-1,0))
+            fittingAnim = AnimSequenceType.IdleLeft;
+        else if(facing == new Point(1,0))
+            fittingAnim = AnimSequenceType.IdleRight;
+        else if(facing == new Point(0,-1))
+            fittingAnim = AnimSequenceType.IdleUp;
+        animator.Play(fittingAnim);
+
         if(IsInvulnerable)
             invulnerableTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
         if(IsAttacking)
             attackTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if(IsHoldingItem)
+            holdItemTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        
         base.Update(gameTime);
     }
-    public void Draw(SpriteBatch spriteBatch)
+    public override void Draw(SpriteBatch spriteBatch, Color? colorTint = null)
     {
-        Color color;
         if (IsInvulnerable && (int)(invulnerableTimer * 5) % 2 == 0)
-            color = Color.Red;
-        else color = Color.White;
-        // TODO: Replace with proper anim and soure selection.
-        spriteBatch.Draw(
-            texture,
-            DrawPosition + new Vector2(16, 31),
-            new Rectangle(0, 0, 128, 128), color, 0f,
-            new Vector2(64, 95), // origin: Feet
-            1f, SpriteEffects.None, 0f);
-        if(IsAttacking)
-            spriteBatch.Draw(
-                TextureManager.Pixel, 
-                new Rectangle(
-                    FacingTile * Map.TileSize, 
-                    new Point(Map.TileSize,Map.TileSize)),
-                Color.Yellow * 0.7f);
+            colorTint = Color.Red;
+        base.Draw(spriteBatch, colorTint);
     }
 }
