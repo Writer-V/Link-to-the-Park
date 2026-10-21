@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LinkToThePark.Actors;
-using LinkToThePark.Graphics;
 using LinkToThePark.Input;
 using LinkToThePark.UI;
 using LinkToThePark.World;
@@ -22,6 +21,7 @@ public class PlayingScreen : BaseScreen
     private List<Enemy> enemies = new();
     private int score = 0;
     private Hud hud = new();
+    private MessageBox messageBox = new();
     private float dramaTimer; // When something needs to hold tension
     private bool bridgeUnlocked;
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
@@ -31,7 +31,6 @@ public class PlayingScreen : BaseScreen
     {
         SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         player = new(new Point(10,12));
-
     }
 
     public override void Exit()
@@ -76,6 +75,11 @@ public class PlayingScreen : BaseScreen
 
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
+        if(messageBox.IsOpen)
+        {
+            messageBox.Update(inputs);
+            return;
+        }
         StoryMomentUpdates(gameTime);
 
         //One Direction. Not a band, but a lack of diagonals.
@@ -206,5 +210,6 @@ public class PlayingScreen : BaseScreen
         currentMap.DrawAbove(spriteBatch);
         if(viewDebug) currentMap.DrawDebug(spriteBatch);
         hud.Draw(spriteBatch, player, score);
+        messageBox.Draw(spriteBatch);
     }
 }
