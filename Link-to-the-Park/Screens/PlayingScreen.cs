@@ -89,8 +89,14 @@ public class PlayingScreen : BaseScreen
         if(inputs.IsActionPressed(InputAction.CheatSkip))
             player.ProgressStory();
         #endif
+        currentMap.Update(gameTime);
         if(messageBox.IsOpen)
         {
+            player.Animate(gameTime);
+            foreach(var enemy in enemies)
+                enemy.Animate(gameTime);
+            foreach(var npc in npcs)
+                if(npc.Value.visible) npc.Value.npc.Animate(gameTime);
             messageBox.Update(inputs);
             return;
         }

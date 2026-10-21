@@ -8,4 +8,5 @@ public class TiledTile
     public int ImageWidth { get; set; }
     public int ImageHeight { get; set; }
     public List<TiledProperty> Properties { get; set; } = new();
+    public List<TiledFrame>? Animation {get; set;}
 }

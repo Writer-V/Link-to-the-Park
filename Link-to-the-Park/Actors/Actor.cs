@@ -61,10 +61,14 @@ public abstract class Actor
             return AnimSequenceType.IdleUp;
         else return AnimSequenceType.Idle;
     }
+    public void Animate(GameTime gameTime)
+    {
+        animator?.Play(AnimationSelection());
+        animator?.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+    }
     public virtual void Update(GameTime gameTime)
     {
-        animator.Play(AnimationSelection());
-        animator.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+        Animate(gameTime);
         if(!IsMoving) return;
         Vector2 target = Position.ToVector2() * Map.TileSize;
         float step = speed * (float)gameTime.ElapsedGameTime.TotalSeconds;

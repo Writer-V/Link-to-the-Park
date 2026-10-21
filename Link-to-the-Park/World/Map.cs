@@ -25,6 +25,9 @@ public class Map
     public const int TileSize = 32;
     public int Width {get;}
     public int Height {get;}
+    private float clock = 0;
+    public void Update(GameTime gameTime) =>
+        clock += (float)gameTime.ElapsedGameTime.TotalSeconds;
     private Texture2D chestTexture;
     private Texture2D vaseTexture;
     private Texture2D offeringTexture;
@@ -178,8 +181,12 @@ public class Map
                 {
                     spriteBatch.Draw(
                         tile.Texture, 
-                        new Rectangle(x * TileSize, (y + 1) * TileSize - tile.Source.Height, tile.Source.Width, tile.Source.Height), 
-                        tile.Source, 
+                        new Rectangle(
+                            x * TileSize, 
+                            (y + 1) * TileSize - tile.Source.Height, 
+                            tile.Source.Width, 
+                            tile.Source.Height), 
+                        tile.SourceAt(clock), 
                         Color.White, 0f, Vector2.Zero, 
                         tile.Effects, 0f);
                 }

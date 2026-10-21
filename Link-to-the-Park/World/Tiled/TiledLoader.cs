@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,20 +46,17 @@ public static class TiledLoader
         if (tileset.Image != null)
         {
             textureName = "tilesets/" + Path.GetFileNameWithoutExtension(tileset.Image);
-            column = localId % tileset.Columns;
-            row = localId / tileset.Columns;
-            source = new Rectangle(
-                column * tileset.TileWidth, 
-                row * tileset.TileHeight, 
-                tileset.TileWidth, 
-                tileset.TileHeight);
-            
+            TiledTile? data = GetTileById(tileset, localId);
+            Rectangle[]? frames = data?.Animation?.Select(f => SourceById(f.TileId, tileset)).ToArray();
+            float duration = (data?.Animation?[0].Duration ?? 0) / 1000f;
             return new Tile(
                 textureName, 
-                source, 
+                SourceById(localId, tileset), 
                 effects,
-                HasTrueProperty(GetTileById(tileset, localId), "solid"),
-                HasTrueProperty(GetTileById(tileset, localId), "bridge"));
+                frames: frames,
+                frameDuration: duration,
+                isSolid: HasTrueProperty(GetTileById(tileset, localId), "solid"),
+                isBridge: HasTrueProperty(GetTileById(tileset, localId), "bridge"));
         }
         else
         {
@@ -69,8 +68,8 @@ public static class TiledLoader
                 textureName, 
                 source, 
                 effects, // TODO: The anchor tile might not be what syhould be solid.
-                HasTrueProperty(tile, "solid"),
-                HasTrueProperty(tile, "bridge"));
+                isSolid: HasTrueProperty(tile, "solid"),
+                isBridge: HasTrueProperty(tile, "bridge"));
         }
     }
     public static Tile?[,] LoadLayer(TiledLayer layer, TiledMap map)
@@ -92,6 +91,16 @@ public static class TiledLoader
                 return tile;
         }
         return null;
+    }
+    private static Rectangle SourceById(int id, TiledTileset tileset)
+    {
+        int column = id % tileset.Columns;
+        int row = id / tileset.Columns;
+        return new Rectangle(
+            column * tileset.TileWidth, 
+            row * tileset.TileHeight, 
+            tileset.TileWidth, 
+            tileset.TileHeight);
     }
     public static bool HasTrueProperty(TiledTile? tile, string propertyName)
     {
