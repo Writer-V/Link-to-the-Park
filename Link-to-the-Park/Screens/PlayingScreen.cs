@@ -33,7 +33,7 @@ public class PlayingScreen : BaseScreen
     }
     public override void Enter()
     {
-        player = new(new Point(10,12));
+        player = new(new Point(10,12), GameSession.Character);
         SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         messageBox.Show("You: Locked out... The key is south... but I need an offering to the altar.", player.ProgressStory);
     }

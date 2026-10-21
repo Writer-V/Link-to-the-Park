@@ -15,18 +15,18 @@ public class MessageBox
     public bool IsOpen {get; private set;}
     public void Show(string text, Action? onClose = null)
     {
-        lines = Wrap(text, frame.Width - 2*padding);
+        lines = Wrap(text, frame.Width - 2*padding, TextureManager.Font);
         this.onClose = onClose;
         IsOpen = true;
     }
-    private static List<string> Wrap(string text, int maxWidth)
+    public static List<string> Wrap(string text, int maxWidth, SpriteFont font)
     {
         List<string> restult = new();
         string line = "";
         foreach(string word in text.Split(" "))
         {
             string attempt = line == "" ? word : line + " " + word;
-            if(TextureManager.Font.MeasureString(attempt).X > maxWidth && line != "")
+            if(font.MeasureString(attempt).X > maxWidth && line != "")
             {
                 restult.Add(line);
                 line = word;
