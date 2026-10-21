@@ -22,7 +22,8 @@ public class PlayerInputs
         [InputAction.Attack]    = new[] {new InputBinding(Keys.Space), new InputBinding(MouseButton.Left), new InputBinding(Buttons.X)},
         [InputAction.Confirm]   = new[] {new InputBinding(Keys.Enter), new InputBinding(Buttons.Start)},
         [InputAction.Quit]      = new[] {new InputBinding(Keys.Escape), new InputBinding(Buttons.Back)},
-        [InputAction.Debug]     = new[] {new InputBinding(Keys.F9)}
+        [InputAction.Debug]     = new[] {new InputBinding(Keys.F9)},
+        [InputAction.CheatSkip] = new[] {new InputBinding(Keys.F10)}
     };
     public IReadOnlyList<InputBinding> GetBindings(InputAction action) => bindings[action];
     private bool IsKeyPressed(InputBinding input)

@@ -19,6 +19,7 @@ public class Map
     public readonly List<Point> CastleGates = new();
     public List<Treasure> Treasures {get;} = new();
     public List<Patrol> Patrols {get;} = new();
+    public List<NpcSpawn> NpcSpawns {get;} = new();
     public Dictionary<Point, string> Doors {get;} = new();
     private bool[,] solidMap = null!;
     public const int TileSize = 32;
@@ -84,6 +85,10 @@ public class Map
                         }
                         else if(tiledObject.GetProperty("CastleGate") is JsonElement gate && gate.GetBoolean())
                             CastleGates.Add(tileLocation);
+                        else if(tiledObject.Type == "NpcSpawn")
+                            NpcSpawns.Add(new(
+                                tiledObject.GetProperty("ID")?.GetInt32() ?? 0, 
+                                tileLocation));
                     }
                 }
                 continue;

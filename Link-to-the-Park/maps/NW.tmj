@@ -196,7 +196,7 @@
                         {
                          "name":"ID",
                          "type":"int",
-                         "value":0
+                         "value":4
                         }],
                  "rotation":0,
                  "type":"NpcSpawn",
@@ -214,7 +214,7 @@
                         {
                          "name":"ID",
                          "type":"int",
-                         "value":1
+                         "value":3
                         }],
                  "rotation":0,
                  "type":"NpcSpawn",

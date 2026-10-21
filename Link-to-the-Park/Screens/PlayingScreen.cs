@@ -20,6 +20,8 @@ public class PlayingScreen : BaseScreen
     private Map currentMap = null!;
     private Player player = null!;
     private List<Enemy> enemies = new();
+    // NPC id index for NPC and visibility
+    private Dictionary<int, (Npc npc, bool visible)> npcs = new();
     private int score = 0;
     private Hud hud = new();
     private MessageBox messageBox = new();
@@ -31,8 +33,8 @@ public class PlayingScreen : BaseScreen
     }
     public override void Enter()
     {
-        SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         player = new(new Point(10,12));
+        SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         messageBox.Show("You: Locked out... The key is south... but I need an offering to the altar.", player.ProgressStory);
     }
 
@@ -52,6 +54,11 @@ public class PlayingScreen : BaseScreen
             currentMap = returnMap;
         }
         enemies = currentMap.Patrols.Select(p => new Enemy(p)).ToList();
+        foreach(var spawn in currentMap.NpcSpawns)
+        {
+            if(spawn.Id == 0) // Other character at the end
+                npcs[spawn.Id] = (new Npc(spawn.Tile, 3 - player.Character), false);
+        }
     }
     private bool TryChangeArea(Point direction)
     {
@@ -78,6 +85,10 @@ public class PlayingScreen : BaseScreen
 
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
+        #if DEBUG
+        if(inputs.IsActionPressed(InputAction.CheatSkip))
+            player.ProgressStory();
+        #endif
         if(messageBox.IsOpen)
         {
             messageBox.Update(inputs);
@@ -183,6 +194,9 @@ public class PlayingScreen : BaseScreen
 
         foreach (var enemy in enemies)
             enemy.Update(gameTime, currentMap);
+        foreach(var npc in npcs)
+            if(npc.Value.visible)
+                npc.Value.npc.Update(gameTime, currentMap);
         foreach(var enemy in enemies)
             if(enemy.Position == player.Position && 
                 dramaTimer <= 0 && 
@@ -206,16 +220,21 @@ public class PlayingScreen : BaseScreen
         }
         else if(dramaTimer <= 0 && player.Progression == StoryProgressState.BackAway)
         {
-            // Move NPC looking like other player and move
-            // them from spawn to 15,10 while animating movement.
+            npcs[0] = (npcs[0].npc, true);
+            npcs[0].npc.WalkPath(new(0,1), new(0,1), new(0,1), new(0,1));
             if(player.Position == new Point(15,10)) //Player might be in the way.
                 player.Move(new Point(-1,0), currentMap);
             player.ProgressStory();
         }
-        else if(player.Progression == StoryProgressState.OtherWalksOut)
-            messageBox.Show("Finally. Now get out — the castle is mine!", player.ProgressStory);
+        else if(player.Progression == StoryProgressState.OtherWalksOut &&
+            npcs[0].npc.IsDoneMoving)
+            {
+                player.Face(new(1,0));
+                npcs[0].npc.Face(new(-1,0));
+                messageBox.Show("You: Finally. Now get out - the castle is mine!", player.ProgressStory);
+            }
         else if(player.Progression == StoryProgressState.CharMessage)
-            messageBox.Show("You suck... (I'll have to get an offering for my own key...)", () => requestGameState(GameState.Victory));
+            messageBox.Show("Them: You suck... (I'll have to get an offering for my own key...)", () => requestGameState(GameState.Victory));
         // But so, must bridges... come..back..?
         else if(dramaTimer <= 0 && !bridgeUnlocked &&
             player.Progression == StoryProgressState.HasKey)
@@ -230,6 +249,8 @@ public class PlayingScreen : BaseScreen
         currentMap.DrawTreasures(spriteBatch);
         foreach (var enemy in enemies)
             enemy.Draw(spriteBatch, player.DrawPosition);
+        foreach(var npc in npcs)
+            if(npc.Value.visible) npc.Value.npc.Draw(spriteBatch);
         player.Draw(spriteBatch);
 
         if(player.IsHoldingItem && player.Progression == StoryProgressState.HasOffering)

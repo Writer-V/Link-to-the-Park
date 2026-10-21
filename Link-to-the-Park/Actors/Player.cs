@@ -20,12 +20,18 @@ public class Player : Actor
     private const float attackTimerBase = 0.15f; // set to..
     private float holdItemTimer = 0;
     private const float holdItemTimerBase = 1.5f; // set to...
-    public bool IsHoldingItem => holdItemTimer > 0;
+    public override bool IsHoldingItem => holdItemTimer > 0;
     public Point FacingTile => Position + facing;
     public Player(Point position, int character = 1) : base(position, 128f)
     {
         Character = character;
-        AnimationSet animationSet = new(
+        animator = new(CreateAnimations(character), initialAnimType: AnimSequenceType.Idle, origin: new(64,95));
+        facing = new(0,1);
+        Progression = StoryProgressState.Prologue;
+    }
+    public static AnimationSet CreateAnimations(int character)
+    {
+        return new(
             TextureManager.Get($"characters/PlayerCharacter{character}"),
             128, 128, 
             AnimSequenceType.Idle, (
@@ -68,9 +74,6 @@ public class Player : Actor
                 AnimSequenceType.AttackUp, new Point(0, 1664),
                 4, 24, true)
         );
-        animator = new(animationSet, initialAnimType: AnimSequenceType.Idle, origin: new(64,95));
-        facing = new(0,1);
-        Progression = StoryProgressState.Prologue;
     }
     public void Attack()
     {
@@ -106,6 +109,7 @@ public class Player : Actor
             item == TreasureType.Item_Key)
         {
             ProgressStory();
+            holdItemTimer = holdItemTimerBase;
             return true;
         }
         else return false;
@@ -127,25 +131,6 @@ public class Player : Actor
     }
     public override void Update(GameTime gameTime)
     {
-        AnimSequenceType fittingAnim = AnimSequenceType.Idle;
-        if(IsHoldingItem)
-            fittingAnim = AnimSequenceType.Pose;
-        else if(IsMoving && facing == new Point(0,1))
-            fittingAnim = AnimSequenceType.MoveDown;
-        else if(IsMoving && facing == new Point(-1,0))
-            fittingAnim = AnimSequenceType.MoveLeft;
-        else if(IsMoving && facing == new Point(1,0))
-            fittingAnim = AnimSequenceType.MoveRight;
-        else if(IsMoving && facing == new Point(0,-1))
-            fittingAnim = AnimSequenceType.MoveUp;
-        else if(facing == new Point(-1,0))
-            fittingAnim = AnimSequenceType.IdleLeft;
-        else if(facing == new Point(1,0))
-            fittingAnim = AnimSequenceType.IdleRight;
-        else if(facing == new Point(0,-1))
-            fittingAnim = AnimSequenceType.IdleUp;
-        animator.Play(fittingAnim);
-
         if(IsInvulnerable)
             invulnerableTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
         if(IsAttacking)
