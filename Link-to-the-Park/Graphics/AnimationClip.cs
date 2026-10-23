@@ -43,6 +43,10 @@ public record class AnimationClip
     }
     public Rectangle FrameRectangle(int frameNumber)
     {
-        return new Rectangle(startPos.X + (frameNumber * FrameWidth), startPos.Y, FrameWidth, FrameHeight);
+        int columns = Texture.Width / FrameWidth;
+        return new Rectangle(
+            startPos.X + frameNumber % columns * FrameWidth, 
+            startPos.Y + frameNumber / columns * FrameHeight, 
+            FrameWidth, FrameHeight);
     }
 }

@@ -25,8 +25,6 @@ public static class TiledLoader
 
         TiledTileset? tileset = null;
         string textureName ="";
-        int column;
-        int row;
         Rectangle source = new();
         SpriteEffects effects = SpriteEffects.None;
 
@@ -61,8 +59,8 @@ public static class TiledLoader
         else
         {
             var tile = GetTileById(tileset, localId);
-            textureName = "tilesets/objects_separately/" + Path.GetFileNameWithoutExtension(tile.Image);
             if(tile == null) throw new InvalidDataException("No object texture file: " + textureName);
+            textureName = "tilesets/objects_separately/" + Path.GetFileNameWithoutExtension(tile.Image);
             source = new Rectangle(0, 0, tile.ImageWidth, tile.ImageHeight);
             return new Tile(
                 textureName, 

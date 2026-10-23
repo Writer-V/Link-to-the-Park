@@ -1,0 +1,50 @@
+{
+    "1": {
+        "name": "Her",
+        "sprite": "1",
+        "steps": [
+            ["You suck..."],
+            ["(I'll have to get an offering for my own key...)"]
+        ]
+    },
+    "2": {
+        "name": "Him",
+        "sprite": "1",
+        "steps": [
+            ["You suck..."],
+            ["(I'll have to get an offering for my own key...)"]
+        ]
+    },
+    "3": {
+        "name": "Wode",
+        "sprite": "npc3",
+        "steps": [
+            ["You? You're always welcome here. Yes, yes."],
+            ["The castle needs a key. The key needs an offering.",
+            "The key to the castle is on an altar. But it won't let it go easily.",
+            "We have a skull tablet. Necromancers use them to appease bound spirits."]
+        ]
+    },
+    "4": {
+        "name": "Eyeleen",
+        "sprite": "npc4",
+        "steps": [
+            ["They're in the locked castle? You need to get in!"],
+            ["The altar south of the castle has a spirit bound to it.",
+            "A skull tablet is a great offering to bound spirits.",
+            "I would never keep you out of our home."]
+        ]
+    },
+    "5": {
+        "name": "Freetoleave Ghost",
+        "sprite": "npc5",
+        "steps": [
+            ["You want the skull thing, right? It's furthest in."],
+            ["No need to pay attention to me!",
+            "Necromancers are great!",
+            "Everything's fine around here!",
+            "You're clearly the superior one!",
+            "Would you look at the time? You should probably get the tablet to the altar."]
+        ]
+    }
+}

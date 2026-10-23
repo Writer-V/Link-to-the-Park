@@ -11,8 +11,8 @@ using Microsoft.Xna.Framework.Graphics;
 namespace LinkToThePark.Screens;
 public class MainMenuScreen : BaseScreen
 {
-    private SpriteAnimator character1Animator;
-    private SpriteAnimator character2Animator;
+    private SpriteAnimator character1Animator = null!;
+    private SpriteAnimator character2Animator = null!;
     private bool character1Selected;
     private List<string> expose = new();
     private Vector2 exposeSize = new();
@@ -22,8 +22,8 @@ public class MainMenuScreen : BaseScreen
     }
     public override void Enter()
     {
-        character1Animator = new(Player.CreateAnimations(1), scale: 2f, initialAnimType: AnimSequenceType.Pose);
-        character2Animator = new(Player.CreateAnimations(2), scale: 2f, initialAnimType: AnimSequenceType.Pose);
+        character1Animator = new SpriteAnimator(Actor.CreateAnimations(1), scale: 2f, initialAnimType: AnimSequenceType.Pose);
+        character2Animator = new SpriteAnimator(Actor.CreateAnimations(2), scale: 2f, initialAnimType: AnimSequenceType.Pose);
         character1Selected = GameSession.Character == 2;
         expose = MessageBox.Wrap(
             "They barred the castle... The shrine has a key but will demand an offering from those in the west.", 

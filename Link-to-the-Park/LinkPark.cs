@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using LinkToThePark.Graphics;
 using LinkToThePark.Input;
 using LinkToThePark.Audio;
+using LinkToThePark.World;
 
 namespace LinkToThePark;
 
@@ -34,6 +35,7 @@ public class LinkPark : Game
         spriteBatch = new SpriteBatch(GraphicsDevice);
         TextureManager.Initialize(Content, GraphicsDevice);
         AudioManager.Initialize(Content);
+        DialogBook.Initialize();
     }
 
     protected override void Update(GameTime gameTime)

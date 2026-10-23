@@ -30,54 +30,6 @@ public class Player : Actor
         facing = new(0,1);
         Progression = StoryProgressState.Prologue;
     }
-
-    // Made static so the NPC version can use it
-    public static AnimationSet CreateAnimations(int character)
-    {
-        return new(
-            TextureManager.Get($"characters/PlayerCharacter{character}"),
-            128, 128, 
-            AnimSequenceType.Idle, (
-                AnimSequenceType.Pose, new Point(0,128),
-                4, 8, true),
-            (
-                AnimSequenceType.Idle, new Point(0, 256),
-                4, 8, true),
-            (
-                AnimSequenceType.IdleLeft, new Point(0, 384),
-                4, 8, true),
-            (
-                AnimSequenceType.IdleRight, new Point(0, 512),
-                4, 8, true),
-            (
-                AnimSequenceType.IdleUp, new Point(0, 640),
-                4, 8, true),
-            (
-                AnimSequenceType.MoveDown, new Point(0, 768),
-                4, 8, true),
-            (
-                AnimSequenceType.MoveLeft, new Point(0, 896),
-                4, 8, true),
-            (
-                AnimSequenceType.MoveRight, new Point(0, 1024),
-                4, 8, true),
-            (
-                AnimSequenceType.MoveUp, new Point(0, 1152),
-                4, 8, true),
-            (
-                AnimSequenceType.Attack, new Point(0, 1280),
-                4, 24, true),
-            (
-                AnimSequenceType.AttackLeft, new Point(0, 1408),
-                4, 24, true),
-            (
-                AnimSequenceType.AttackRight, new Point(0, 1536),
-                4, 24, true),
-            (
-                AnimSequenceType.AttackUp, new Point(0, 1664),
-                4, 24, true)
-        );
-    }
     public void Attack()
     {
         AudioManager.Play("playerMisses"); //Swoosh

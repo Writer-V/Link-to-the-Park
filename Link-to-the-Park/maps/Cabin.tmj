@@ -170,7 +170,7 @@
                         {
                          "name":"ID",
                          "type":"int",
-                         "value":2
+                         "value":5
                         }],
                  "rotation":0,
                  "type":"NpcSpawn",

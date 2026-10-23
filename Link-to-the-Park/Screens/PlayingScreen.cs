@@ -22,7 +22,7 @@ public class PlayingScreen : BaseScreen
     private Player player = null!;
     private List<Enemy> enemies = new();
     // NPC id index for NPC and visibility
-    private Dictionary<int, (Npc npc, bool visible)> npcs = new();
+    private Dictionary<int, (Npc npc, int interactionNo, bool visible)> npcs = new();
     private int score = 0;
     private Hud hud = new();
     private MessageBox messageBox = new();
@@ -48,6 +48,7 @@ public class PlayingScreen : BaseScreen
     private void SetCurrentMap(string? areaName)
     {
         if(areaName == null) throw new InvalidOperationException("Attempted to load null map file.");
+
         Map? returnMap;
         if(maps.TryGetValue(areaName, out returnMap)) 
             currentMap = returnMap;
@@ -57,13 +58,22 @@ public class PlayingScreen : BaseScreen
             maps.Add(areaName, returnMap);
             currentMap = returnMap;
         }
+
+        //Spawn enemies on patrol
         enemies = currentMap.Patrols.Select(p => new Enemy(p)).ToList();
+
+        //Set up relevant NPCs
+        foreach (var npcId in npcs.Keys.ToList()) // Hide everyone
+            npcs[npcId] = (npcs[npcId].npc, npcs[npcId].interactionNo, false);
         foreach(var spawn in currentMap.NpcSpawns)
         {
-            if(spawn.Id == 0) // Other character at the end
-                npcs[spawn.Id] = (new Npc(spawn.Tile, 3 - player.Character), false);
+            if(!npcs.ContainsKey(spawn.Id)) // Create if they're not in there. Hide the end character.
+                npcs[spawn.Id] = (new Npc(spawn.Tile, spawn.Id), 0, spawn.Id != 0);
+            else if(spawn.Id != 0) // Show the relevant ones.
+                npcs[spawn.Id] = (npcs[spawn.Id].npc, npcs[spawn.Id].interactionNo, true);
         }
-        switch (currentMap.Name)
+
+        switch (currentMap.Name) // Set the music
         {
             case "N":
                 AudioManager.Music("songAreaN-S");
@@ -108,7 +118,8 @@ public class PlayingScreen : BaseScreen
         }
         return canChange;
     }
-
+    private bool IsNpcAt(Point tile) =>
+        npcs.Values.Any(n => n.visible && n.npc.Position == tile);
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
         #if DEBUG
@@ -117,7 +128,7 @@ public class PlayingScreen : BaseScreen
         #endif
 
         currentMap.Update(gameTime);
-        if(messageBox.IsOpen) // Animations still happen.
+        if(messageBox.IsOpen) // Only animations
         {
             player.Animate(gameTime);
             foreach(var enemy in enemies)
@@ -139,12 +150,14 @@ public class PlayingScreen : BaseScreen
             direction = new Point(-1,0);
         else if(inputs.IsActionHeld(InputAction.MoveRight))
             direction = new Point(1,0);
+        
+        // Check for all the reasons to ignore movement input
         if(direction != Point.Zero && 
             dramaTimer <= 0 && 
             !StoryMoment &&
             !player.IsHoldingItem)
         {
-            MoveResult result = player.Move(direction, currentMap);
+            MoveResult result = player.Move(direction, currentMap, IsNpcAt);
             if(result == MoveResult.MapExit && TryChangeArea(direction))
             {
                 Point p = player.Position + direction;
@@ -153,8 +166,6 @@ public class PlayingScreen : BaseScreen
                 p.Y = (p.Y + currentMap.Height) % currentMap.Height;
                 player.PlaceAt(p);
             }
-            /* else if(result == MoveResult.Blocked)
-                AudioManager.Play("hitSolid"); */
         }
         player.Update(gameTime);
 
@@ -212,6 +223,17 @@ public class PlayingScreen : BaseScreen
                     Debug.WriteLine($"Picked up {treasure.Type}");
                 }
             }
+            foreach(var npc in npcs)
+            {
+                if(npc.Value.visible && 
+                    npc.Value.npc.Position == player.FacingTile)
+                {
+                    int interaction = npc.Value.interactionNo;
+                    string line = npc.Value.npc.GetDialog(interaction);
+                    if(line != "")messageBox.Show(line);
+                    npcs[npc.Key] = (npc.Value.npc, interaction += 1, npc.Value.visible);
+                }
+            }
             
             /* Player encounters winning castle gates
             This should be the character backing away as the
@@ -260,7 +282,7 @@ public class PlayingScreen : BaseScreen
         }
         else if(dramaTimer <= 0 && player.Progression == StoryProgressState.BackAway)
         {
-            npcs[0] = (npcs[0].npc, true);
+            npcs[0] = (npcs[0].npc, npcs[0].interactionNo, true);
             npcs[0].npc.WalkPath(new(0,1), new(0,1), new(0,1), new(0,1));
             if(player.Position == new Point(15,10)) //Player might be in the way.
                 player.Move(new Point(-1,0), currentMap);
@@ -274,7 +296,14 @@ public class PlayingScreen : BaseScreen
                 messageBox.Show("You: Finally. Now get out - the castle is mine!", player.ProgressStory);
             }
         else if(player.Progression == StoryProgressState.CharMessage)
-            messageBox.Show("Them: You suck... (I'll have to get an offering for my own key...)", () => requestGameState(GameState.Victory));
+        {
+            if(npcs[0].interactionNo == 0)
+            {
+                messageBox.Show(npcs[0].npc.GetDialog(0));
+                npcs[0] = (npcs[0].npc, 1, true);
+            }
+            else messageBox.Show(npcs[0].npc.GetDialog(npcs[0].interactionNo), () => requestGameState(GameState.Victory));
+        }
         // But so, must bridges... come..back..?
         else if(dramaTimer <= 0 && !bridgeUnlocked &&
             player.Progression == StoryProgressState.HasKey)
@@ -297,13 +326,13 @@ public class PlayingScreen : BaseScreen
             spriteBatch.Draw(
                 TextureManager.Get("items/Offering"),
                 new Rectangle(player.Position.X * Map.TileSize,
-                    (player.Position.Y - 1) * Map.TileSize - 16, 23, 23),
+                    (player.Position.Y - 1) * Map.TileSize - 16, 32, 32),
                 Color.White);
         if(player.IsHoldingItem && player.Progression == StoryProgressState.HasKey)
             spriteBatch.Draw(
                 TextureManager.Get("items/FinalKey"),
                 new Rectangle(player.Position.X * Map.TileSize,
-                    (player.Position.Y - 1) * Map.TileSize - 16, 23, 23),
+                    (player.Position.Y - 1) * Map.TileSize - 16, 32, 32),
                 new Rectangle(9, 0, 32, 32),
                 Color.White);
         

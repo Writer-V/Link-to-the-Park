@@ -37,7 +37,6 @@ public class Enemy : Actor
             _ => throw new NotImplementedException()
         };
         animator = new(animations, origin: origin);
-        if(Type == EnemyType.Skeleton) animator.Scale = 2f;
     }
     public static AnimationSet CreateAnimatios(EnemyType type)
     {
@@ -45,33 +44,49 @@ public class Enemy : Actor
         if(type == EnemyType.Skeleton)
             return new(TextureManager.Get("characters/skeleton"),
                 64, 64,AnimSequenceType.Idle,
-                (AnimSequenceType.IdleLeft,  new Point(0,   0), 8, 8, true),
-                (AnimSequenceType.Idle,      new Point(0,  64), 8, 8, true),
-                (AnimSequenceType.IdleUp,    new Point(0, 128), 8, 8, true),
-                (AnimSequenceType.IdleRight, new Point(0, 192), 8, 8, true),
-                (AnimSequenceType.MoveLeft,  new Point(0, 256), 8, 12, true),
-                (AnimSequenceType.MoveDown,  new Point(0, 320), 8, 12, true),
-                (AnimSequenceType.MoveUp,    new Point(0, 384), 8, 12, true),
-                (AnimSequenceType.MoveRight, new Point(0, 448), 8, 12, true));
+                (AnimSequenceType.MoveLeft,     new Point(0,   0), 8, 8, true),
+                (AnimSequenceType.MoveDown,     new Point(0,  64), 8, 8, true),
+                (AnimSequenceType.MoveUp,       new Point(0, 128), 8, 8, true),
+                (AnimSequenceType.MoveRight,    new Point(0, 192), 8, 8, true),
+                (AnimSequenceType.IdleLeft,     new Point(0, 256), 8, 12, true),
+                (AnimSequenceType.Idle,         new Point(0, 320), 8, 12, true),
+                (AnimSequenceType.IdleUp,       new Point(0, 384), 8, 12, true),
+                (AnimSequenceType.IdleRight,    new Point(0, 448), 8, 12, true),
+                (AnimSequenceType.AttackLeft,   new Point(0, 512), 6, 12, false),
+                (AnimSequenceType.Attack,       new Point(0, 576), 6, 12, false),
+                (AnimSequenceType.AttackUp,     new Point(0, 640), 6, 12, false),
+                (AnimSequenceType.AttackRight,  new Point(0, 704), 6, 12, false));
         // Zombie, 80×80, origin (40,61): slow, so low fps
         else if(type == EnemyType.Zombie)
             return new(TextureManager.Get("characters/zombie"),
-            80, 80, AnimSequenceType.Idle,
-            (AnimSequenceType.Idle,      new Point(0,    0), 6, 6, true),
-            (AnimSequenceType.MoveDown,  new Point(0,   80), 6, 6, true),
-            (AnimSequenceType.IdleUp,    new Point(0,  400), 6, 6, true),
-            (AnimSequenceType.MoveUp,    new Point(0,  480), 6, 6, true),
-            (AnimSequenceType.IdleRight, new Point(0,  800), 6, 6, true),
-            (AnimSequenceType.MoveRight, new Point(0,  880), 6, 6, true),
-            (AnimSequenceType.IdleLeft,  new Point(0, 1200), 6, 6, true),
-            (AnimSequenceType.MoveLeft,  new Point(0, 1280), 6, 6, true));
+                80, 80, AnimSequenceType.Idle,
+                (AnimSequenceType.Idle,         new Point(0,    0), 6, 6, true),
+                (AnimSequenceType.MoveDown,     new Point(0,   80), 6, 6, true),
+                (AnimSequenceType.Attack,       new Point(0,  160), 5, 6, false),
+                (AnimSequenceType.Hit,          new Point(0,  240), 2, 6, false),
+                (AnimSequenceType.Death,        new Point(0,  320), 6, 6, false),
+                (AnimSequenceType.IdleUp,       new Point(0,  400), 6, 6, true),
+                (AnimSequenceType.MoveUp,       new Point(0,  480), 6, 6, true),
+                (AnimSequenceType.AttackUp,     new Point(0,  560), 5, 6, false),
+                (AnimSequenceType.HitUp,        new Point(0,  640), 2, 6, false),
+                (AnimSequenceType.DeathUp,      new Point(0,  720), 6, 6, false),
+                (AnimSequenceType.IdleRight,    new Point(0,  800), 6, 6, true),
+                (AnimSequenceType.MoveRight,    new Point(0,  880), 6, 6, true),
+                (AnimSequenceType.AttackRight,  new Point(0,  960), 5, 6, false),
+                (AnimSequenceType.HitRight,     new Point(0, 1040), 2, 6, false),
+                (AnimSequenceType.DeathRight,   new Point(0, 1120), 6, 6, false),
+                (AnimSequenceType.IdleLeft,     new Point(0, 1200), 6, 6, true),
+                (AnimSequenceType.MoveLeft,     new Point(0, 1280), 6, 6, true),
+                (AnimSequenceType.AttackLeft,   new Point(0, 1360), 5, 6, false),
+                (AnimSequenceType.HitLeft,      new Point(0, 1440), 2, 6, false),
+                (AnimSequenceType.DeathLeft,    new Point(0, 1520), 6, 6, false));
         // Ghost, 32×32, origin (16,31)
         else return new(TextureManager.Get("characters/ghost"),
-        32, 32, AnimSequenceType.MoveDown,
-        (AnimSequenceType.MoveDown,  new Point(0,  0), 3, 6, true),
-        (AnimSequenceType.MoveLeft,  new Point(0, 32), 3, 6, true),
-        (AnimSequenceType.MoveRight, new Point(0, 64), 3, 6, true),
-        (AnimSequenceType.MoveUp,    new Point(0, 96), 3, 6, true));
+            32, 32, AnimSequenceType.MoveDown,
+            (AnimSequenceType.MoveDown,  new Point(0,  0), 3, 6, true),
+            (AnimSequenceType.MoveLeft,  new Point(0, 32), 3, 6, true),
+            (AnimSequenceType.MoveRight, new Point(0, 64), 3, 6, true),
+            (AnimSequenceType.MoveUp,    new Point(0, 96), 3, 6, true));
     }
     public void Update(GameTime gameTime, Map map)
     {

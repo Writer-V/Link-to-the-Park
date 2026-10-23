@@ -318,7 +318,7 @@
 
 #begin SoundEffects/thunk.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/thunk.mp3
