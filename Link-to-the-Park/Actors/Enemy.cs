@@ -37,6 +37,7 @@ public class Enemy : Actor
             _ => throw new NotImplementedException()
         };
         animator = new(animations, origin: origin);
+        if(Type == EnemyType.Skeleton) animator.Scale = 1.5f;
     }
     public static AnimationSet CreateAnimatios(EnemyType type)
     {

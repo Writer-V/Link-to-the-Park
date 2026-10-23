@@ -46,5 +46,11 @@
             "You're clearly the superior one!",
             "Would you look at the time? You should probably get the tablet to the altar."]
         ]
+    },
+    "10": {
+        "name": "Chest bonus",
+        "steps": [
+            ["You found all chests! Bonus points: "]
+        ]
     }
 }

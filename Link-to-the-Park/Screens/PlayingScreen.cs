@@ -24,6 +24,9 @@ public class PlayingScreen : BaseScreen
     // NPC id index for NPC and visibility
     private Dictionary<int, (Npc npc, int interactionNo, bool visible)> npcs = new();
     private int score = 0;
+    private const int totalChests = 8;
+    private int openedChests = 0;
+    private int chestBonus = 60;
     private Hud hud = new();
     private MessageBox messageBox = new();
     private bool StoryMoment => player.Progression >= StoryProgressState.GateOpens;
@@ -206,6 +209,14 @@ public class PlayingScreen : BaseScreen
                 {
                     treasure.Open();
                     score += treasure.Points;
+                    if(treasure.Type == TreasureType.Chest)
+                        openedChests++;
+                    Debug.WriteLine($"Opened {openedChests} chests");
+                    if(openedChests == totalChests)
+                    {
+                        score += chestBonus;
+                        messageBox.Show(DialogBook.GetLine(10,0) + chestBonus.ToString());
+                    }
                 }
                 // But, like, an important one?
                 else if(treasure.Tile == player.Position &&
