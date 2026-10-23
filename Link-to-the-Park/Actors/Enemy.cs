@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LinkToThePark.Audio;
 using LinkToThePark.Graphics;
 using LinkToThePark.World;
 using Microsoft.Xna.Framework;
@@ -89,6 +90,28 @@ public class Enemy : Actor
     public void TakeHit(int damage = 1)
     {
         HitPoints -= damage;
+        if(Type == EnemyType.Skeleton)
+            AudioManager.Play("skeletonDeath");
+        else if(Type == EnemyType.Ghost)
+            AudioManager.Play("ghostDeath");
+        else if(Type == EnemyType.Zombie && IsDead)
+            AudioManager.Play("zombieDeath");
+        else AudioManager.Play("zombieHurt");
+    }
+    public void Attack()
+    {
+        switch (Type)
+        {
+            case EnemyType.Skeleton:
+                AudioManager.Play("playerHitTarget"); // For now
+                break;
+            case EnemyType.Ghost:
+                AudioManager.Play("ghostAttack");
+                break;
+            case EnemyType.Zombie:
+                AudioManager.Play("zombieAttack");
+                break;
+        }
     }
     public void Draw(SpriteBatch spriteBatch, Vector2 playerPosition)
     {

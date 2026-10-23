@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using LinkToThePark.Audio;
 using LinkToThePark.Graphics;
 using LinkToThePark.World;
 using Microsoft.Xna.Framework;
@@ -29,6 +30,8 @@ public class Player : Actor
         facing = new(0,1);
         Progression = StoryProgressState.Prologue;
     }
+
+    // Made static so the NPC version can use it
     public static AnimationSet CreateAnimations(int character)
     {
         return new(
@@ -77,6 +80,7 @@ public class Player : Actor
     }
     public void Attack()
     {
+        AudioManager.Play("playerMisses"); //Swoosh
         if(facing == new Point(0,1))
             animator.PlayOnce(AnimSequenceType.Attack, true);
         else if(facing == new Point(-1,0))
@@ -92,6 +96,9 @@ public class Player : Actor
         if(IsInvulnerable) return;
         CurrentLives -= damage;
         invulnerableTimer = invulnerableBase;
+        if(CurrentLives > 0)
+            AudioManager.Play($"char{Character}Hurt");
+        else AudioManager.Play("playerDeath");
         Debug.WriteLine($"Lives: {CurrentLives} / {MaxLives}");
     }
     public bool TryPickUp(TreasureType item)
@@ -102,6 +109,7 @@ public class Player : Actor
             item == TreasureType.Item_Offering)
         {
             ProgressStory();
+            AudioManager.Play("itemFanfare");
             holdItemTimer = holdItemTimerBase;
             return true;
         }

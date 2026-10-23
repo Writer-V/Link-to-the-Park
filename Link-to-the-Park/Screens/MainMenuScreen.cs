@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LinkToThePark.Actors;
+using LinkToThePark.Audio;
 using LinkToThePark.Graphics;
 using LinkToThePark.Input;
 using LinkToThePark.UI;
@@ -34,6 +35,7 @@ public class MainMenuScreen : BaseScreen
             exposeSize.Y += TextureManager.FontBig.LineSpacing;
         }
         labelSize = TextureManager.FontBig.MeasureString("HER");
+        AudioManager.Music("songMainMenu");
     }
 
     public override void Exit()
@@ -48,10 +50,15 @@ public class MainMenuScreen : BaseScreen
         if(inputs.IsActionPressed(InputAction.Confirm))
         {
             GameSession.Character = character1Selected ? 1 : 2;
+            AudioManager.Play("buttonClick");
             requestGameState(GameState.Playing);
         }
-        else if (inputs.IsActionPressed(InputAction.MoveLeft) || inputs.IsActionPressed(InputAction.MoveRight))
+        else if (inputs.IsActionPressed(InputAction.MoveLeft) || 
+            inputs.IsActionPressed(InputAction.MoveRight))
+        {
             character1Selected = !character1Selected;
+            AudioManager.Play("buttonHover");
+        }
     }
     
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)

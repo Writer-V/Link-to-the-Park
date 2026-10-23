@@ -26,7 +26,7 @@
 /processorParam:Version=3.8.5.1
 /build:characters/ghost.png
 
-#begin characters/npc0.png
+#begin characters/npc3.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -37,9 +37,9 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:characters/npc0.png
+/build:characters/npc3.png
 
-#begin characters/npc1.png
+#begin characters/npc4.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -50,7 +50,20 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
-/build:characters/npc1.png
+/build:characters/npc4.png
+
+#begin characters/npc5.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:characters/npc5.png
 
 #begin characters/PlayerCharacter1.png
 /importer:TextureImporter
@@ -261,6 +274,13 @@
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/hitSolid.mp3
 
+#begin SoundEffects/itemFanfare.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/processorParam:Version=3.8.5.1
+/build:SoundEffects/itemFanfare.wav
+
 #begin SoundEffects/playerDeath.mp3
 /importer:Mp3Importer
 /processor:SoundEffectProcessor
@@ -295,6 +315,20 @@
 /processorParam:Quality=Best
 /processorParam:Version=3.8.5.1
 /build:SoundEffects/skeletonDetection.mp3
+
+#begin SoundEffects/thunk.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/processorParam:Version=3.8.5.1
+/build:SoundEffects/thunk.mp3
+
+#begin SoundEffects/vaseBreak.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/processorParam:Version=3.8.5.1
+/build:SoundEffects/vaseBreak.mp3
 
 #begin SoundEffects/zombieAttack.mp3
 /importer:Mp3Importer

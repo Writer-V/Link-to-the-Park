@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LinkToThePark.Actors;
+using LinkToThePark.Audio;
 using LinkToThePark.Graphics;
 using LinkToThePark.Input;
 using LinkToThePark.UI;
@@ -33,6 +34,7 @@ public class PlayingScreen : BaseScreen
     }
     public override void Enter()
     {
+        GameSession.Score = 0;
         player = new(new Point(10,12), GameSession.Character);
         SetCurrentMap(worldMap[currentArea.X, currentArea.Y]);
         messageBox.Show("You: Locked out... The key is south... but I need an offering to the altar.", player.ProgressStory);
@@ -40,6 +42,8 @@ public class PlayingScreen : BaseScreen
 
     public override void Exit()
     {
+        GameSession.Score = score;
+        //Could add some sort of time bonus / penalty...
     }
     private void SetCurrentMap(string? areaName)
     {
@@ -59,6 +63,24 @@ public class PlayingScreen : BaseScreen
             if(spawn.Id == 0) // Other character at the end
                 npcs[spawn.Id] = (new Npc(spawn.Tile, 3 - player.Character), false);
         }
+        switch (currentMap.Name)
+        {
+            case "N":
+                AudioManager.Music("songAreaN-S");
+                break;
+            case "S":
+                AudioManager.Music("songAreaN-S");
+                break;
+            case "NW":
+                AudioManager.Music("songNW-cabin");
+                break;
+            case "Cabin":
+                AudioManager.Music("songNW-cabin");
+                break;
+            default:
+                AudioManager.Music("songGeneralGameplay");
+                break;
+        }
     }
     private bool TryChangeArea(Point direction)
     {
@@ -71,9 +93,13 @@ public class PlayingScreen : BaseScreen
             target.X > (worldMap.GetLength(0) - 1) || 
             target.Y < 0 ||
             target.Y > (worldMap.GetLength(1) - 1))
+        {
             canChange = false;
+        }
         else if(worldMap[target.X,target.Y] == null) 
+        {
             canChange = false;
+        }
         else
         {
             SetCurrentMap(worldMap[target.X, target.Y]);
@@ -89,8 +115,9 @@ public class PlayingScreen : BaseScreen
         if(inputs.IsActionPressed(InputAction.CheatSkip))
             player.ProgressStory();
         #endif
+
         currentMap.Update(gameTime);
-        if(messageBox.IsOpen)
+        if(messageBox.IsOpen) // Animations still happen.
         {
             player.Animate(gameTime);
             foreach(var enemy in enemies)
@@ -126,11 +153,14 @@ public class PlayingScreen : BaseScreen
                 p.Y = (p.Y + currentMap.Height) % currentMap.Height;
                 player.PlaceAt(p);
             }
+            /* else if(result == MoveResult.Blocked)
+                AudioManager.Play("hitSolid"); */
         }
         player.Update(gameTime);
 
         // Player encuonters door:
-        if(!player.IsMoving && currentMap.Doors.TryGetValue(player.Position, out string? target))
+        if(!player.IsMoving && 
+            currentMap.Doors.TryGetValue(player.Position, out string? target))
         {
             Point faceDirection = player.FacingTile - player.Position;
             string from = currentMap.Name;
@@ -165,7 +195,6 @@ public class PlayingScreen : BaseScreen
                 {
                     treasure.Open();
                     score += treasure.Points;
-                    Debug.WriteLine($"Score: {score} (added {treasure.Points}) — Solidity is {treasure.BlocksMovement}");
                 }
                 // But, like, an important one?
                 else if(treasure.Tile == player.Position &&
@@ -177,6 +206,7 @@ public class PlayingScreen : BaseScreen
                     {
                         // Bridge really should appear one step at a time.
                         currentMap.SetLayerVisible("HiddenBridge1", true);
+                        AudioManager.Play("thunk");
                         dramaTimer = 0.5f;
                     }
                     Debug.WriteLine($"Picked up {treasure.Type}");
@@ -191,6 +221,7 @@ public class PlayingScreen : BaseScreen
             {
                 currentMap.SetLayerVisible("Porteculis1", false);
                 currentMap.SetLayerVisible("Porteculis2", true);
+                AudioManager.Play("thunk");
                 player.ProgressStory();
                 dramaTimer = 0.2f;
             }
@@ -208,7 +239,10 @@ public class PlayingScreen : BaseScreen
                 dramaTimer <= 0 && 
                 !StoryMoment &&
                 !player.IsHoldingItem)
+            {
+                enemy.Attack();
                 player.TakeHit();
+            }
         if(player.CurrentLives <= 0)
             requestGameState(GameState.GameOver);
     }

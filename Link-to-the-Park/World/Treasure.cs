@@ -1,3 +1,4 @@
+using LinkToThePark.Audio;
 using Microsoft.Xna.Framework;
 
 namespace LinkToThePark.World;
@@ -19,5 +20,9 @@ public class Treasure
     public void Open()
     {
         Opened = true;
+        if(Type == TreasureType.Chest)
+            AudioManager.Play("chestOpen");
+        if(Type == TreasureType.BreakableVase)
+            AudioManager.Play("vaseBreak");
     }
 }

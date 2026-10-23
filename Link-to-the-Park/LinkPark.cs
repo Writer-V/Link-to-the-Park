@@ -1,11 +1,9 @@
 ﻿using LinkToThePark.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using LinkToThePark.World.Tiled;
 using LinkToThePark.Graphics;
-using LinkToThePark.World;
 using LinkToThePark.Input;
+using LinkToThePark.Audio;
 
 namespace LinkToThePark;
 
@@ -35,6 +33,7 @@ public class LinkPark : Game
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
         TextureManager.Initialize(Content, GraphicsDevice);
+        AudioManager.Initialize(Content);
     }
 
     protected override void Update(GameTime gameTime)
@@ -42,7 +41,6 @@ public class LinkPark : Game
         inputs.UpdateState(IsActive);
         if(inputs.IsActionPressed(InputAction.Quit))
             Exit();
-        // TODO: Add your update logic here
         screenManager.Update(gameTime);
         base.Update(gameTime);
     }
