@@ -9,26 +9,42 @@ using Microsoft.Xna.Framework.Graphics;
 namespace LinkToThePark.Actors;
 public class Enemy : Actor
 {
-    private static (int HitPoints, float Speed, int Points) StatsFor(EnemyType type) => type switch
+    
+    public record EnemyStats(
+        int HitPoints, float Speed, int Points,
+        bool IsSolid, // Not a ghost
+        float AttackCooldownn,
+        int DetectRange, // In tiles
+        int AbandonRange // Give up beyond this
+    );
+    private record EnemySounds(
+        string Attack,      string Hurt,
+        string Death,       string Detection
+    );
+    private static EnemyStats StatsFor(EnemyType type) => type switch
     {
-        EnemyType.Skeleton => (1, 128f, 3),
-        EnemyType.Zombie => (2, 48f, 2),
-        EnemyType.Ghost => (1, 92f, 1),
+        EnemyType.Skeleton  => new EnemyStats(1, 128f, 3, true, 0.8f, 4, 6),
+        EnemyType.Zombie    => new EnemyStats(2,  48f, 2, true, 1.1f, 3, 5),
+        EnemyType.Ghost     => new EnemyStats(1,  92f, 1, false,  1f, 0, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
     public EnemyType Type {get;}
+    public EnemyStats Stats {get; private set;}
+    private EnemySounds soundFiles;
     public int HitPoints {get; private set;}
-    public int PointValue {get;} // Variable point values are out of scope
+    private float attackTimer;
+    public bool IsAttacking => attackTimer <= 0;
     private readonly List<Point> waypoints;
     private int nextWaypoint;
-    public bool IsDead => HitPoints <= 0;
+    public bool IsDead => Stats.HitPoints <= 0;
     public Enemy(Patrol patrol) : base(patrol.Waypoints[0], StatsFor(patrol.Type).Speed)
     {
         Type = patrol.Type;
-        HitPoints = StatsFor(Type).HitPoints;
-        PointValue = StatsFor(Type).Points;
+        Stats = StatsFor(Type);
+        HitPoints = Stats.HitPoints;
         waypoints = patrol.Waypoints;
         nextWaypoint = 1 % waypoints.Count;
+
         (AnimationSet animations, Vector2 origin) = patrol.Type switch
         {
             EnemyType.Skeleton => (CreateAnimatios(EnemyType.Skeleton), new Vector2(32, 44)),
@@ -38,6 +54,14 @@ public class Enemy : Actor
         };
         animator = new(animations, origin: origin);
         if(Type == EnemyType.Skeleton) animator.Scale = 1.5f;
+
+        soundFiles = Type switch
+        {
+            EnemyType.Skeleton  => new EnemySounds("playerHitTarget", "", "skeletonDeath", "skeletonDetection"),
+            EnemyType.Ghost     => new EnemySounds("ghostAttack", "", "ghostDeath", ""),
+            EnemyType.Zombie    => new EnemySounds("zombieAttack", "zombieHurt", "zombieDeath", "zombieDetection"),
+            _ => new EnemySounds("","","","")
+        };
     }
     public static AnimationSet CreateAnimatios(EnemyType type)
     {
@@ -89,17 +113,38 @@ public class Enemy : Actor
             (AnimSequenceType.MoveRight, new Point(0, 64), 3, 6, true),
             (AnimSequenceType.MoveUp,    new Point(0, 96), 3, 6, true));
     }
-    public void Update(GameTime gameTime, Map map)
+    public bool TryAttack(Point playerTile)
     {
+        if(IsMoving || IsAttacking || IsDead) return false;
+        if(Type == EnemyType.Ghost && Position != playerTile) return false;
+        if(Math.Abs(Position.X - playerTile.X) + 
+            Math.Abs(Position.Y - playerTile.Y) == 1 &&
+            Type != EnemyType.Ghost) return false;
+        
+        Face(new Point(Position.X - playerTile.X,
+            Position.Y - playerTile.Y));
+        animator.PlayOnce(AttackAnimDirection(), true);
+        if(soundFiles.Attack != "")
+            AudioManager.Play(soundFiles.Attack);
+
+        attackTimer = Stats.AttackCooldownn;
+        return true;
+    }
+    public void Update(GameTime gameTime, Map map, Func<Point, bool>? isOccupied = null)
+    {
+        if(attackTimer > 0) attackTimer -= 
+            (float)gameTime.ElapsedGameTime.TotalSeconds;
+        
         if(!IsMoving)
         {
             Point target = waypoints[nextWaypoint];
+            if(Type == EnemyType.Ghost) isOccupied = null; //Ghosts ignore that.
             if(Position == target)
                 nextWaypoint = (nextWaypoint + 1) % waypoints.Count;
             else // A step in the right direction
                 Move(new Point(
                     Math.Sign(target.X - Position.X),
-                    Math.Sign(target.Y - Position.Y)), map);
+                    Math.Sign(target.Y - Position.Y)), map, isOccupied);
         }
         base.Update(gameTime);
     }
@@ -113,21 +158,6 @@ public class Enemy : Actor
         else if(Type == EnemyType.Zombie && IsDead)
             AudioManager.Play("zombieDeath");
         else AudioManager.Play("zombieHurt");
-    }
-    public void Attack()
-    {
-        switch (Type)
-        {
-            case EnemyType.Skeleton:
-                AudioManager.Play("playerHitTarget"); // For now
-                break;
-            case EnemyType.Ghost:
-                AudioManager.Play("ghostAttack");
-                break;
-            case EnemyType.Zombie:
-                AudioManager.Play("zombieAttack");
-                break;
-        }
     }
     public void Draw(SpriteBatch spriteBatch, Vector2 playerPosition)
     {

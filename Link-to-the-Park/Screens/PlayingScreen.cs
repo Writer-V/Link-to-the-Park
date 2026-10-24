@@ -32,6 +32,12 @@ public class PlayingScreen : BaseScreen
     private bool StoryMoment => player.Progression >= StoryProgressState.GateOpens;
     private float dramaTimer; // When something needs to hold tension
     private bool bridgeUnlocked;
+    private bool IsNpcAt(Point tile) =>
+        npcs.Values.Any(n => n.visible && n.npc.Position == tile);
+    private bool IsOccupued(Point tile) =>
+        player.Position == tile ||
+        enemies.Any(e => e.Stats.IsSolid && e.Position == tile) ||
+        IsNpcAt(tile);
     public PlayingScreen(Action<GameState> requestGameState) : base(requestGameState)
     {
     }
@@ -121,8 +127,6 @@ public class PlayingScreen : BaseScreen
         }
         return canChange;
     }
-    private bool IsNpcAt(Point tile) =>
-        npcs.Values.Any(n => n.visible && n.npc.Position == tile);
     public override void Update(GameTime gameTime, PlayerInputs inputs)
     {
         #if DEBUG
@@ -160,7 +164,7 @@ public class PlayingScreen : BaseScreen
             !StoryMoment &&
             !player.IsHoldingItem)
         {
-            MoveResult result = player.Move(direction, currentMap, IsNpcAt);
+            MoveResult result = player.Move(direction, currentMap, IsOccupued);
             if(result == MoveResult.MapExit && TryChangeArea(direction))
             {
                 Point p = player.Position + direction;
@@ -195,8 +199,8 @@ public class PlayingScreen : BaseScreen
                 if(enemy.Position == player.FacingTile)
                 {
                     enemy.TakeHit();
-                    if(enemy.IsDead) score += enemy.PointValue;
-                    Debug.WriteLine($"Score: {score} (added {enemy.PointValue})");
+                    if(enemy.IsDead) score += enemy.Stats.Points;
+                    Debug.WriteLine($"Score: {score} (added {enemy.Stats.Points})");
                 }
             }
             foreach(var treasure in currentMap.Treasures)
@@ -263,19 +267,18 @@ public class PlayingScreen : BaseScreen
         }
 
         foreach (var enemy in enemies)
-            enemy.Update(gameTime, currentMap);
+            enemy.Update(gameTime, currentMap, IsOccupued);
         foreach(var npc in npcs)
             if(npc.Value.visible)
                 npc.Value.npc.Update(gameTime, currentMap);
-        foreach(var enemy in enemies)
-            if(enemy.Position == player.Position && 
-                dramaTimer <= 0 && 
-                !StoryMoment &&
-                !player.IsHoldingItem)
-            {
-                enemy.Attack();
-                player.TakeHit();
-            }
+        if(dramaTimer <= 0 && 
+            !StoryMoment &&
+            !player.IsHoldingItem)
+        {
+            foreach(var enemy in enemies)
+                if(enemy.TryAttack(player.Position))
+                    player.TakeHit();
+        }
         if(player.CurrentLives <= 0)
             requestGameState(GameState.GameOver);
     }

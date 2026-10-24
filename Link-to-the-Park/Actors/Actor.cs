@@ -14,7 +14,9 @@ public abstract class Actor
     protected static readonly Vector2 TileAnchor = 
         new(Map.TileSize / 2, Map.TileSize - 1); // (16, 31)
     protected Point facing;
-    public void Face(Point direction) => facing = direction;
+    public void Face(Point direction) => facing = new Point(
+            Math.Clamp(direction.X, -1, 1), 
+            Math.Clamp(direction.Y, -1, 1));
     public bool IsMoving {get; protected set;}
     private float solidBumpSound;
     public virtual bool IsHoldingItem {get; private set;}
@@ -85,6 +87,16 @@ public abstract class Actor
             default:
                 throw new ArgumentOutOfRangeException($"Animation set: {character}");
         }
+    }
+    protected AnimSequenceType AttackAnimDirection()
+    {
+        if(facing == new Point(-1,0))
+            return AnimSequenceType.AttackLeft;
+        else if(facing == new Point(1,0))
+            return AnimSequenceType.AttackRight;
+        else if(facing == new Point(0,-1))
+            return AnimSequenceType.AttackUp;
+        else return AnimSequenceType.Attack;
     }
     public MoveResult Move(Point direction, Map map, Func<Point, bool>? isOccupied = null)
     {
