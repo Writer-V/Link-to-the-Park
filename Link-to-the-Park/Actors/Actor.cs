@@ -98,6 +98,16 @@ public abstract class Actor
             return AnimSequenceType.AttackUp;
         else return AnimSequenceType.Attack;
     }
+    protected AnimSequenceType HitAnimDirection()
+    {
+        if(facing == new Point(-1,0))
+            return AnimSequenceType.HitLeft;
+        else if(facing == new Point(1,0))
+            return AnimSequenceType.HitRight;
+        else if(facing == new Point(0,-1))
+            return AnimSequenceType.HitUp;
+        else return AnimSequenceType.Hit;
+    }
     public MoveResult Move(Point direction, Map map, Func<Point, bool>? isOccupied = null)
     {
         if(IsMoving) return MoveResult.Blocked;

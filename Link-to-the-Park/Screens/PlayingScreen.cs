@@ -198,7 +198,7 @@ public class PlayingScreen : BaseScreen
                 // Was an enemy hit?
                 if(enemy.Position == player.FacingTile)
                 {
-                    enemy.TakeHit();
+                    enemy.TakeHit(player.Position, currentMap, IsOccupued);
                     if(enemy.IsDead) score += enemy.Stats.Points;
                     Debug.WriteLine($"Score: {score} (added {enemy.Stats.Points})");
                 }

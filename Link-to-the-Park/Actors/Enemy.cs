@@ -34,6 +34,7 @@ public class Enemy : Actor
     public int HitPoints {get; private set;}
     private float attackTimer;
     public bool IsAttacking => attackTimer > 0;
+    private bool knockedBack;
     private static readonly Point[] Directions = 
         { new(0,-1), new(0,1), new(-1,0), new(1,0)}; // N,S,W, E
     private readonly List<Point> waypoints;
@@ -144,6 +145,21 @@ public class Enemy : Actor
             AudioManager.Play("zombieDeath");
         else AudioManager.Play("zombieHurt");
     }
+    public void TakeHit(Point attackerTile, Map map, Func<Point, bool>? isOccupied, int damage = 1)
+    {
+        TakeHit(damage);
+        if(Type == EnemyType.Zombie && !IsDead && !IsMoving)
+        {
+            Point away = Position - attackerTile;
+            if(Move(away, map, isOccupied) == MoveResult.Walkable)
+            {
+                knockedBack = true;
+                speed = Stats.Speed * 5;
+            }
+            Face(new Point(-away.X, -away.Y));
+            animator.PlayOnce(HitAnimDirection(), true);
+        }
+    }
     private Point StepTowards(Point goal, Map map, Func<Point, bool>? isOccupied, int maxDepth)
     {
         var frontier = new Queue<(Point tile, int depth)>();
@@ -181,6 +197,11 @@ public class Enemy : Actor
     {
         if(attackTimer > 0) attackTimer -= 
             (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if(knockedBack && !IsMoving)
+        {
+            speed = Stats.Speed;
+            knockedBack = false;
+        }
         
         int distance = Math.Abs(playerTile.X - Position.X) +
             Math.Abs(playerTile.Y - Position.Y);
