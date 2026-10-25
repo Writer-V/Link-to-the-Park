@@ -17,7 +17,7 @@ public class Player : Actor
     private bool IsInvulnerable => invulnerableTimer > 0;
     private const float invulnerableBase = 1.5f; // set to...
     private float attackTimer = 0;
-    public bool IsAttacking => attackTimer >= 0;
+    public bool IsAttacking => attackTimer > 0;
     private const float attackTimerBase = 0.15f; // set to..
     private float holdItemTimer = 0;
     private const float holdItemTimerBase = 1.5f; // set to...

@@ -267,7 +267,7 @@ public class PlayingScreen : BaseScreen
         }
 
         foreach (var enemy in enemies)
-            enemy.Update(gameTime, currentMap, IsOccupued);
+            enemy.Update(gameTime, currentMap, player.Position, IsOccupued);
         foreach(var npc in npcs)
             if(npc.Value.visible)
                 npc.Value.npc.Update(gameTime, currentMap);

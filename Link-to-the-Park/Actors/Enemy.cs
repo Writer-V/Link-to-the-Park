@@ -23,8 +23,8 @@ public class Enemy : Actor
     );
     private static EnemyStats StatsFor(EnemyType type) => type switch
     {
-        EnemyType.Skeleton  => new EnemyStats(1, 128f, 3, true, 0.8f, 4, 6),
-        EnemyType.Zombie    => new EnemyStats(2,  48f, 2, true, 1.1f, 3, 5),
+        EnemyType.Skeleton  => new EnemyStats(1, 118f, 3, true, 0.8f, 5, 10),
+        EnemyType.Zombie    => new EnemyStats(2,  48f, 2, true, 1.1f, 3, 15),
         EnemyType.Ghost     => new EnemyStats(1,  92f, 1, false,  1f, 0, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
@@ -33,10 +33,13 @@ public class Enemy : Actor
     private EnemySounds soundFiles;
     public int HitPoints {get; private set;}
     private float attackTimer;
-    public bool IsAttacking => attackTimer <= 0;
+    public bool IsAttacking => attackTimer > 0;
+    private static readonly Point[] Directions = 
+        { new(0,-1), new(0,1), new(-1,0), new(1,0)}; // N,S,W, E
     private readonly List<Point> waypoints;
     private int nextWaypoint;
-    public bool IsDead => Stats.HitPoints <= 0;
+    private bool chasing;
+    public bool IsDead => HitPoints <= 0;
     public Enemy(Patrol patrol) : base(patrol.Waypoints[0], StatsFor(patrol.Type).Speed)
     {
         Type = patrol.Type;
@@ -115,38 +118,20 @@ public class Enemy : Actor
     }
     public bool TryAttack(Point playerTile)
     {
-        if(IsMoving || IsAttacking || IsDead) return false;
+        if((IsMoving && Type != EnemyType.Ghost) || IsAttacking || IsDead) return false;
         if(Type == EnemyType.Ghost && Position != playerTile) return false;
         if(Math.Abs(Position.X - playerTile.X) + 
-            Math.Abs(Position.Y - playerTile.Y) == 1 &&
+            Math.Abs(Position.Y - playerTile.Y) != 1 &&
             Type != EnemyType.Ghost) return false;
         
-        Face(new Point(Position.X - playerTile.X,
-            Position.Y - playerTile.Y));
+        Face(new Point( playerTile.X - Position.X,
+            playerTile.Y - Position.Y));
         animator.PlayOnce(AttackAnimDirection(), true);
         if(soundFiles.Attack != "")
             AudioManager.Play(soundFiles.Attack);
 
         attackTimer = Stats.AttackCooldownn;
         return true;
-    }
-    public void Update(GameTime gameTime, Map map, Func<Point, bool>? isOccupied = null)
-    {
-        if(attackTimer > 0) attackTimer -= 
-            (float)gameTime.ElapsedGameTime.TotalSeconds;
-        
-        if(!IsMoving)
-        {
-            Point target = waypoints[nextWaypoint];
-            if(Type == EnemyType.Ghost) isOccupied = null; //Ghosts ignore that.
-            if(Position == target)
-                nextWaypoint = (nextWaypoint + 1) % waypoints.Count;
-            else // A step in the right direction
-                Move(new Point(
-                    Math.Sign(target.X - Position.X),
-                    Math.Sign(target.Y - Position.Y)), map, isOccupied);
-        }
-        base.Update(gameTime);
     }
     public void TakeHit(int damage = 1)
     {
@@ -158,6 +143,71 @@ public class Enemy : Actor
         else if(Type == EnemyType.Zombie && IsDead)
             AudioManager.Play("zombieDeath");
         else AudioManager.Play("zombieHurt");
+    }
+    private Point StepTowards(Point goal, Map map, Func<Point, bool>? isOccupied, int maxDepth)
+    {
+        var frontier = new Queue<(Point tile, int depth)>();
+        var cameFrom = new Dictionary<Point, Point>();
+        frontier.Enqueue((Position, 0));
+        cameFrom[Position] = Position;
+
+        while(frontier.Count > 0)
+        {
+            var (current, depth) = frontier.Dequeue(); //Looking...
+            if(current == goal) // Found!
+            {
+                Point step = goal;
+                while(cameFrom[step] != Position) 
+                    step = cameFrom[step]; // Retracing our steps
+                return step - Position;
+            }
+
+            if(depth >= maxDepth) continue; // Give up the chase
+
+            foreach(Point dir in Directions)
+            {
+                Point next = current + dir;
+                if(cameFrom.ContainsKey(next) || !map.IsInside(next) || map.IsSolid(next))
+                    continue;
+                if(next != goal && isOccupied?.Invoke(next) == true)
+                    continue;
+                cameFrom[next] = current;
+                frontier.Enqueue((next, depth + 1));                    
+            }
+        }
+        return Point.Zero;
+    }
+    public void Update(GameTime gameTime, Map map, Point playerTile, Func<Point, bool>? isOccupied = null)
+    {
+        if(attackTimer > 0) attackTimer -= 
+            (float)gameTime.ElapsedGameTime.TotalSeconds;
+        
+        int distance = Math.Abs(playerTile.X - Position.X) +
+            Math.Abs(playerTile.Y - Position.Y);
+        if(Type == EnemyType.Ghost) isOccupied = null;
+
+        if(!chasing && distance <= Stats.DetectRange && 
+            Stats.DetectRange > 0 &&
+            StepTowards(playerTile, map, 
+                isOccupied, Stats.AbandonRange) != Point.Zero)
+        {
+            chasing = true;
+            if(soundFiles.Detection != "") AudioManager.Play(soundFiles.Detection);
+        }
+
+        if(!IsMoving)
+        {
+            if(!chasing && Position == waypoints[nextWaypoint])
+                nextWaypoint = (nextWaypoint + 1) % waypoints.Count;
+            
+            Point target = chasing ? playerTile : waypoints[nextWaypoint];
+            int maxDepth = chasing ? Stats.AbandonRange : map.Width * map.Height;
+            Point step = StepTowards(target, map, isOccupied, maxDepth);
+            
+            if(step != Point.Zero) Move(step, map, isOccupied);
+            else if(chasing) chasing = false; // Give up
+        }
+        base.Update(gameTime);
     }
     public void Draw(SpriteBatch spriteBatch, Vector2 playerPosition)
     {
