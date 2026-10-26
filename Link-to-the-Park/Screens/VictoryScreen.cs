@@ -18,7 +18,7 @@ public class VictoryScreen : BaseScreen
     }
     public override void Enter()
     {
-        AudioManager.Play("songEnd");
+        AudioManager.Music("songEnd");
         victoryTextSize = TextureManager.FontBig.MeasureString("SUCCESS");
         storyTextSize = TextureManager.Font.MeasureString(storyText);
         scoreTextSize = TextureManager.FontBig.MeasureString($"Score: {GameSession.Score}");
