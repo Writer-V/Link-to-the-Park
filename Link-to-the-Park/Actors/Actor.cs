@@ -13,6 +13,7 @@ public abstract class Actor
     public Vector2 DrawPosition {get; private set;}
     protected static readonly Vector2 TileAnchor = 
         new(Map.TileSize / 2, Map.TileSize - 1); // (16, 31)
+    public Vector2 FeetPositiom => DrawPosition + TileAnchor;
     protected Point facing;
     public void Face(Point direction) => facing = new Point(
             Math.Clamp(direction.X, -1, 1), 

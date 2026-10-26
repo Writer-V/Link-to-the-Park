@@ -27,6 +27,7 @@ public class PlayingScreen : BaseScreen
     private const int totalChests = 8;
     private int openedChests = 0;
     private int chestBonus = 60;
+    private Vector2 heldItemOffset = new(-16, -88);
     private Hud hud = new();
     private MessageBox messageBox = new();
     private bool StoryMoment => player.Progression >= StoryProgressState.GateOpens;
@@ -262,6 +263,7 @@ public class PlayingScreen : BaseScreen
                 player.ProgressStory();
                 dramaTimer = 0.2f;
             }
+    
             // Remove dead enemies
             enemies.RemoveAll(e => e.IsDead);
         }
@@ -326,6 +328,13 @@ public class PlayingScreen : BaseScreen
             bridgeUnlocked = true;
         }
     }
+    private void DrawHeldItem(SpriteBatch spriteBatch, Texture2D tex, Rectangle? source = null)
+    {
+        Vector2 pos = player.FeetPositiom + heldItemOffset;
+        spriteBatch.Draw(tex, 
+            new Rectangle((int)pos.X, (int)pos.Y, 32, 32),
+            source, Color.White); 
+    }
     public override void Draw(SpriteBatch spriteBatch, bool viewDebug)
     {
         currentMap.DrawBelow(spriteBatch);
@@ -337,18 +346,11 @@ public class PlayingScreen : BaseScreen
         player.Draw(spriteBatch);
 
         if(player.IsHoldingItem && player.Progression == StoryProgressState.HasOffering)
-            spriteBatch.Draw(
-                TextureManager.Get("items/Offering"),
-                new Rectangle(player.Position.X * Map.TileSize,
-                    (player.Position.Y - 1) * Map.TileSize - 16, 32, 32),
-                Color.White);
+            DrawHeldItem(spriteBatch, 
+                TextureManager.Get("items/Offering"), new Rectangle(9, 0, 32, 32));
         if(player.IsHoldingItem && player.Progression == StoryProgressState.HasKey)
-            spriteBatch.Draw(
-                TextureManager.Get("items/FinalKey"),
-                new Rectangle(player.Position.X * Map.TileSize,
-                    (player.Position.Y - 1) * Map.TileSize - 16, 32, 32),
-                new Rectangle(9, 0, 32, 32),
-                Color.White);
+            DrawHeldItem(spriteBatch, 
+                TextureManager.Get("items/FinalKey"), new Rectangle(9, 0, 32, 32));
         
         currentMap.DrawAbove(spriteBatch);
         if(viewDebug) currentMap.DrawDebug(spriteBatch);
